@@ -1,0 +1,30 @@
+# node_modules
+# npm-debug.log
+# Dockerfile*
+# docker-compose*
+# .dockerignore
+# .git
+# .gitignore
+# README.md
+# LICENSE
+# .vscode
+
+# Versioning and metadata
+.git
+.gitignore
+.dockerignore
+
+# Build dependencies
+dist
+node_modules
+coverage
+
+# Environment (contains sensitive data)
+.env
+
+# Files not required for production
+.editorconfig
+Dockerfile
+README.md
+tslint.json
+nodemon.json

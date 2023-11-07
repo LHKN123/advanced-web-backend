@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nestjs-backend
+    container_name: nestjs-backend
+    restart: always
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    networks:
+      - app-network
+    links:
+      - mongodb:mongodb
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+    volumes:
+      - .:/nest
+
+  mongodb:
+    image: mongo
+    container_name: nestjs-mongodb
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - ./server:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+networks:
+  app-network:
+    driver: bridge
