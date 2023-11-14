@@ -4,6 +4,7 @@
 
 # Logs
 logs
+_log
 *.log
 npm-debug.log*
 pnpm-debug.log*
@@ -33,3 +34,5 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+.wt

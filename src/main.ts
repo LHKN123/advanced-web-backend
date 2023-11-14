@@ -15,14 +15,16 @@ async function bootstrap() {
   };
   app.enableCors(corsOptions);
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
-  useContainer(app.select(AppModule), { 
-    fallbackOnErrors: true 
-   });
+  useContainer(app.select(AppModule), {
+    fallbackOnErrors: true,
+  });
   await app.listen(4000);
 }
 bootstrap();

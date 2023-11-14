@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { isEmail } from 'class-validator';
 
 @Controller()
 export class AppController {
