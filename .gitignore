@@ -44,3 +44,5 @@ WiredTiger*
 server/.mongodb/mongosh/mongosh_repl_history
 config
 am-*
+*xl.meta
+minio/data/.minio.sys/tmp/*

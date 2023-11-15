@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MinioClientService } from './minio-client.service';
 import { MinioModule } from 'nestjs-minio-client';
-import { config } from './config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     MinioModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
+      useFactory: async (config: ConfigService) => {
         return {
           endPoint: config.get('MINIO_ENDPOINT'),
           port: parseInt(config.get('MINIO_PORT')),

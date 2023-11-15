@@ -45,10 +45,12 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-    environment:
-        MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-        MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    command: server /data
+    # environment:
+    #     MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+    #     MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command: server --console-address ":9001" /data
+    env_file: .env
+    restart: always
 
 networks: 
   app-network:

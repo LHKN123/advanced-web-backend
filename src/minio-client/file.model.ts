@@ -22,4 +22,4 @@ export interface StoredFileMetadata {
   fileSrc?: string;
 }
 
-export type AppMimeType = 'image/png' | 'image/jpeg' | 'video/mp4';
+export type AppMimeType = 'image/png' | 'image/jpeg' | 'image/jpg' | 'image/gif' | 'video/mp4';
