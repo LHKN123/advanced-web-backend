@@ -39,13 +39,14 @@ export class UsersService {
     if (!updatedUser) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    updatedUser.username = username;
-    updatedUser.email = email;
-    await this.userRepository.update({ _id: objectId }, { email: email });
+    // updatedUser.username = username;
+    // updatedUser.email = email;
+    // // await this.userRepository.update({ _id: objectId }, { email: email });
     // const newUser = await this.userRepository.update(
     //   { _id: objectId },
     //   { username: username },
     // );
+    console.log(updatedUser);
     return this.userRepository.save({ ...updatedUser, email, username });
   }
 }
