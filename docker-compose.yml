@@ -37,6 +37,19 @@ services:
       - ./server:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
-networks:
+  minio:
+    image: minio/minio
+    container_name: minio-server
+    volumes:
+      - ./minio/data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+        MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+        MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command: server /data
+
+networks: 
   app-network:
     driver: bridge

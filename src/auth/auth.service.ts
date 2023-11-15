@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { error } from 'console';
+import { RegisterUserDto } from './dto/register-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -47,8 +48,17 @@ export class AuthService {
       );
     }
 
-    const payload = { email: user.email, id: user.id };
-    return this.generateToken(payload);
+    const payload = { id: user.id };
+    const { access_token, refresh_token } = await this.generateToken(
+      payload,
+      user.email,
+    );
+    return {
+      email: user.email,
+      username: user.username,
+      access_token,
+      refresh_token,
+    };
   }
 
   async refreshToken(refresh_token: string): Promise<any> {
@@ -62,7 +72,7 @@ export class AuthService {
         refresh_token,
       });
       if (checkExistToken) {
-        return this.generateToken({ id: verify.id, email: verify.email });
+        return this.generateToken({ id: verify.id }, verify.email);
       } else {
         throw new HttpException(
           'Refresh token is not valid',
@@ -77,14 +87,16 @@ export class AuthService {
     }
   }
 
-  async register(email: string, password: string) {
-    console.log('register', email, password);
-    if (!password) {
+  async register(registerUser: RegisterUserDto) {
+    if (!registerUser.password) {
       throw error;
     }
 
-    const hashPassword = await this.hashPassword(password);
-    let response = await this.userService.create(email, hashPassword);
+    const hashPassword = await this.hashPassword(registerUser.password);
+    let response = await this.userService.create({
+      ...registerUser,
+      password: hashPassword,
+    });
     if (response) {
       const { password, ...result } = response;
       return result;
@@ -95,7 +107,7 @@ export class AuthService {
     return this.jwtService.decode(token);
   }
 
-  private async generateToken(payload: { id: string; email: string }) {
+  private async generateToken(payload: { id: string }, email) {
     const access_token = await this.jwtService.signAsync(payload);
     const refresh_token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
@@ -103,7 +115,7 @@ export class AuthService {
     });
 
     await this.userRepository.update(
-      { email: payload.email },
+      { email: email },
       { refresh_token: refresh_token },
     );
 

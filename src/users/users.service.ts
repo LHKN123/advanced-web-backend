@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './users.entity';
 import { Repository } from 'typeorm';
+import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,12 +20,12 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async create(email: string, password: string): Promise<UserEntity> {
+  async create(registerUser: RegisterUserDto): Promise<UserEntity> {
     const existingUser = await this.userRepository.findOne({
-      where: { email },
+      where: { email: registerUser.email },
     });
     if (!existingUser) {
-      const newUser = this.userRepository.create({ email, password });
+      const newUser = this.userRepository.create(registerUser);
       return this.userRepository.save(newUser);
     } else {
       throw new HttpException('Account already exists', HttpStatus.CONFLICT);
