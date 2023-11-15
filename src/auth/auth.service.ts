@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/users/users.entity';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
+import { ObjectId, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -48,7 +48,7 @@ export class AuthService {
       );
     }
 
-    const payload = { id: user.id };
+    const payload = { id: user._id };
     const { access_token, refresh_token } = await this.generateToken(
       payload,
       user.email,
@@ -107,7 +107,7 @@ export class AuthService {
     return this.jwtService.decode(token);
   }
 
-  private async generateToken(payload: { id: string }, email) {
+  private async generateToken(payload: { id: ObjectId }, email) {
     const access_token = await this.jwtService.signAsync(payload);
     const refresh_token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),

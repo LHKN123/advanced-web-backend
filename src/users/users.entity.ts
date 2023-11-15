@@ -1,9 +1,14 @@
-import { Column, Entity, ObjectIdColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ObjectIdColumn,
+  ObjectId as ObjectIDType,
+} from 'typeorm';
 
 @Entity()
 export class UserEntity {
   @ObjectIdColumn()
-  id: string;
+  _id: ObjectIDType;
 
   @Column({ unique: true })
   email: string;
@@ -13,6 +18,9 @@ export class UserEntity {
 
   @Column()
   password: string;
+
+  // @Column()
+  // avatarUrl: string;
 
   @Column({ nullable: true, default: null })
   refresh_token: string;

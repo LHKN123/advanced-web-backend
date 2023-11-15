@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './users.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UsersService {
@@ -14,10 +15,6 @@ export class UsersService {
   async findByEmail(email: string): Promise<UserEntity | undefined> {
     const user = await this.userRepository.findOne({ where: { email } });
     return user;
-  }
-
-  async findById(id: string): Promise<UserEntity | undefined> {
-    return this.userRepository.findOne({ where: { id } });
   }
 
   async create(registerUser: RegisterUserDto): Promise<UserEntity> {
@@ -32,11 +29,23 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string): Promise<UserEntity> {
-    return await this.userRepository.findOneBy({ id });
-  }
-
-  async updateProfile(id: number, username: string, email: string) {
-    return null;
+  async updateProfile(id: string, username: string, email: string) {
+    const objectId = new ObjectId(id);
+    console.log('objectId', objectId);
+    const updatedUser = await this.userRepository.findOne({
+      where: { _id: objectId },
+    });
+    console.log('UPDATE', updatedUser);
+    if (!updatedUser) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    updatedUser.username = username;
+    updatedUser.email = email;
+    await this.userRepository.update({ _id: objectId }, { email: email });
+    // const newUser = await this.userRepository.update(
+    //   { _id: objectId },
+    //   { username: username },
+    // );
+    return this.userRepository.save({ ...updatedUser, email, username });
   }
 }

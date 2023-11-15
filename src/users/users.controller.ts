@@ -14,20 +14,19 @@ import { UserEntity } from './users.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Put('update')
-  // @UseGuards(AuthGuard('jwt'))
-  // async update(
-  //   @Req() req: Request,
-  //   @Body('username') username: string,
-  //   @Body('email') email: string,
-  // ) {
-  //   // const userId = req.user.id;
-  //   // Gọi phương thức cập nhật profile từ service
-  //   // return this.usersService.updateProfile(Number(userId), username, email);
-  // }
-
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<UserEntity> {
-    return this.usersService.findOne(id);
+  @Put('update')
+  @UseGuards(AuthGuard('jwt'))
+  async update(
+    @Req() req: any,
+    @Body('username') username: string,
+    @Body('email') email: string,
+  ) {
+    const userId = req.user.id;
+    return this.usersService.updateProfile(userId, username, email);
   }
+
+  // @Get(':id')
+  // findOne(@Param('id') id: string): Promise<UserEntity> {
+  //   return this.usersService.findOne(id);
+  // }
 }
