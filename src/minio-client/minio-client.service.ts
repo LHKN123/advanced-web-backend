@@ -9,10 +9,6 @@ export class MinioClientService {
   private readonly logger: Logger;
   private readonly configService: ConfigService;
 
-  //   private readonly logger: Logger;
-  //   private readonly configService: ConfigService
-  //   private readonly baseBucket = configService.MINIO_BUCKET;
-
   public get client() {
     return this.minio.client;
   }
@@ -25,7 +21,7 @@ export class MinioClientService {
     file: BufferedFile,
     baseBucket: string = this.configService.get<string>('MINIO_BUCKET'),
   ) {
-    if (!(file.mimetype.includes('jpeg') || file.mimetype.includes('png'))) {
+    if (!(file.mimetype.includes('jpeg') || file.mimetype.includes('jpg') || file.mimetype.includes('png') || file.mimetype.includes('gif'))) {
       throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST);
     }
 
@@ -89,7 +85,7 @@ export class MinioClientService {
       await this.client.removeObject(baseBucket, objetName);
     } catch (error) {
       throw new HttpException(
-        'Oops Something wrong happend',
+        'Oops... Something wrong happened',
         HttpStatus.BAD_REQUEST,
       );
     }
