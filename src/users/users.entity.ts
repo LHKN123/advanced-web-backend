@@ -19,8 +19,9 @@ export class UserEntity {
   @Column()
   password: string;
 
-  // @Column()
-  // avatarUrl: string;
+  @Column()
+  avatarUrl: string =
+    'https://pops.vn/series/tham-tu-lung-danh-conan-5e857135574ebb00334427a2';
 
   @Column({ nullable: true, default: null })
   refresh_token: string;

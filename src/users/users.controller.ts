@@ -10,19 +10,30 @@ import {
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from './users.entity';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+
+@ApiTags('profile')
 @Controller('profile')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put('update')
+  @ApiOperation({ summary: 'Update profile info' })
+  @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async update(
-    @Req() req: any,
-    @Body('username') username: string,
-    @Body('email') email: string,
-  ) {
+  async update(@Req() req: any, @Body() reqBody: UpdateProfileDto) {
     const userId = req.user.id;
-    return this.usersService.updateProfile(userId, username, email);
+    return this.usersService.updateProfile(
+      userId,
+      reqBody.username,
+      reqBody.email,
+    );
   }
 
   // @Get(':id')
