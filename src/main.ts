@@ -5,16 +5,30 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SocketIoAdapter } from './socketio-adapter';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   // dotenv.config();
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const clientPort = parseInt(configService.get('CLIENT_PORT'));
+  const appPort = parseInt(configService.get('APP_PORT'));
+
   const corsOptions: CorsOptions = {
-    origin: true,
+    // origin: true,
+    origin: [
+      `http://localhost:${clientPort}`,
+      new RegExp(
+        `/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`,
+      ).toString(),
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };
   app.enableCors(corsOptions);
+
+  app.useWebSocketAdapter(new SocketIoAdapter(app, configService));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -47,6 +61,6 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(4000);
+  await app.listen(appPort);
 }
 bootstrap();

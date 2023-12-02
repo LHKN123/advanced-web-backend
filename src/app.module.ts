@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { UserEntity } from './users/users.entity';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
+import { SocketioGateway } from './socketio/socketio.gateway';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,6 +31,6 @@ import { UploadModule } from './upload/upload.module';
     UploadModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SocketioGateway],
 })
 export class AppModule {}
