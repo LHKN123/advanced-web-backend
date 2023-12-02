@@ -9,6 +9,10 @@ import { UserEntity } from 'src/users/users.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './stategies/jwt.strategy';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+
 
 @Module({
   imports: [
@@ -24,6 +28,31 @@ import { JwtStrategy } from './stategies/jwt.strategy';
         },
       }),
       inject: [ConfigService],
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: configService.get('MAIL_HOST'),
+          secure: false,
+          auth: {
+            user: configService.get('MAIL_USER'),
+            pass: configService.get('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: `"No Reply" <${configService.get('MAIL_FROM')}>`
+        },
+        template: {
+          dir: join(__dirname, '/templates/email'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          }
+        }
+      }),
+      inject: [ConfigService],
+
     }),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],

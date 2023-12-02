@@ -4,6 +4,7 @@ import { UserEntity } from './users.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 import { ObjectId } from 'mongodb';
+import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -48,5 +49,21 @@ export class UsersService {
     // );
     console.log(updatedUser);
     return this.userRepository.save({ ...updatedUser, email, username });
+  }
+
+  async updateProfilePassword(reqUser: ResetPasswordDto) {
+    const currentUser = await this.userRepository.findOne({
+      where: { email: reqUser.email },
+    });
+    if (!currentUser) 
+    { 
+      throw new HttpException('User not found', HttpStatus.CONFLICT);
+    }
+    else {
+      currentUser.password = reqUser.password;
+      this.userRepository.save({...currentUser});
+      return HttpStatus.OK;
+    }
+
   }
 }
