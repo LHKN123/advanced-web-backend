@@ -49,4 +49,11 @@ export class UsersService {
     console.log(updatedUser);
     return this.userRepository.save({ ...updatedUser, email, username });
   }
+
+  async getUserById(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { _id: new ObjectId(userId) },
+    });
+    return user;
+  }
 }

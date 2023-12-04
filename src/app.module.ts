@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +6,7 @@ import { UsersModule } from './users/users.module';
 import { UserEntity } from './users/users.entity';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
-import { SocketioGateway } from './socketio/socketio.gateway';
+import { SocketioModule } from './socketio/socketio.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,8 +27,7 @@ import { SocketioGateway } from './socketio/socketio.gateway';
     UsersModule,
     MinioClientModule,
     UploadModule,
+    SocketioModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, SocketioGateway],
 })
 export class AppModule {}

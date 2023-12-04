@@ -5,7 +5,6 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { SocketIoAdapter } from './socketio-adapter';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -19,16 +18,12 @@ async function bootstrap() {
     // origin: true,
     origin: [
       `http://localhost:${clientPort}`,
-      new RegExp(
-        `/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`,
-      ).toString(),
+      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };
   app.enableCors(corsOptions);
-
-  app.useWebSocketAdapter(new SocketIoAdapter(app, configService));
 
   app.useGlobalPipes(
     new ValidationPipe({

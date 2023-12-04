@@ -1,42 +1,86 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger, Req, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayInit,
   WebSocketGateway,
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { UsersService } from 'src/users/users.service';
+import { WsJwtAuthGuard } from './guard/ws-jwt.guard';
+
+class tokenPayload {
+  id: string;
+}
 
 @WebSocketGateway({
-  // namespace: 'grades',
+  namespace: 'notification',
+  cors: { origin: '*' },
   // access methods of the controller with same gateway
 })
 export class SocketioGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(SocketioGateway.name);
-  // for grading services
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    // for grading services
+    // private readonly gradeService: GradeService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @WebSocketServer() io: Namespace;
+  socketMap = new Map<string, tokenPayload>();
 
   afterInit(server: any) {
     this.logger.log('Websocket gateway initialized');
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
+    const token = client.handshake.headers.authorization.split(' ')[1];
     const sockets = this.io.sockets;
+    const publicKey = await this.configService.get<string>(
+      'EXP_IN_REFRESH_TOKEN',
+    );
+    const secret = await this.configService.get<string>('JWT_SECRET');
+    if (!token) {
+      client.disconnect(true);
+    }
+    const payload = (await this.jwtService.verifyAsync(token, {
+      publicKey,
+      secret,
+    })) as tokenPayload;
+    if (!payload) {
+      client.disconnect(true);
+    }
 
-    this.logger.log(`Client with id ${client.id} connected`);
-    this.logger.log(`Number of connected sockets: ${sockets.size} connected`);
+    this.socketMap.set(token, payload);
+
+    console.log(`Client with id ${client.id} connected`);
+    console.log(`Number of connected sockets: ${sockets.size} connected`);
   }
 
   handleDisconnect(client: Socket) {
     const sockets = this.io.sockets;
+    this.socketMap.delete(client.id);
 
     this.logger.log(`Disconnected id: ${client.id}`);
     this.logger.log(`Number of connected sockets: ${sockets.size} connected`);
+  }
+
+  @SubscribeMessage('newMessage')
+  @UseGuards(WsJwtAuthGuard)
+  sendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() message: any,
+    @Req() req: any,
+  ) {
+    console.log(req.user);
+    this.io.emit('onMessage', message);
   }
 }
