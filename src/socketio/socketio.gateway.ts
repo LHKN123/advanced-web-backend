@@ -21,7 +21,6 @@ class tokenPayload {
 @WebSocketGateway({
   namespace: 'notification',
   cors: { origin: '*' },
-  // access methods of the controller with same gateway
 })
 export class SocketioGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -41,28 +40,40 @@ export class SocketioGateway
     this.logger.log('Websocket gateway initialized');
   }
 
+  async onModuleInit() {
+    this.io.on('connection', async (socket) => this.handleConnection(socket));
+  }
+
   async handleConnection(client: Socket) {
-    const token = client.handshake.headers.authorization.split(' ')[1];
-    const sockets = this.io.sockets;
-    const publicKey = await this.configService.get<string>(
-      'EXP_IN_REFRESH_TOKEN',
-    );
-    const secret = await this.configService.get<string>('JWT_SECRET');
-    if (!token) {
+    try {
+      let token = client.handshake.headers.authorization.split(' ')[0];
+      if (token === 'Bearer') {
+        token = client.handshake.headers.authorization.split(' ')[1];
+      }
+      const sockets = this.io.sockets;
+      const publicKey = await this.configService.get<string>(
+        'EXP_IN_REFRESH_TOKEN',
+      );
+      const secret = await this.configService.get<string>('JWT_SECRET');
+      if (!token) {
+        client.disconnect(true);
+      }
+      const payload = (await this.jwtService.verifyAsync(token, {
+        publicKey,
+        secret,
+      })) as tokenPayload;
+      if (!payload) {
+        client.disconnect(true);
+      }
+
+      this.socketMap.set(token, payload);
+
+      console.log(`Client with id ${client.id} connected`);
+      console.log(`Number of connected sockets: ${sockets.size} connected`);
+    } catch (error) {
+      console.error('Error handling connection:', error.message);
       client.disconnect(true);
     }
-    const payload = (await this.jwtService.verifyAsync(token, {
-      publicKey,
-      secret,
-    })) as tokenPayload;
-    if (!payload) {
-      client.disconnect(true);
-    }
-
-    this.socketMap.set(token, payload);
-
-    console.log(`Client with id ${client.id} connected`);
-    console.log(`Number of connected sockets: ${sockets.size} connected`);
   }
 
   handleDisconnect(client: Socket) {
