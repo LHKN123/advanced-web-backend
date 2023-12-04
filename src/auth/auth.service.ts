@@ -9,6 +9,12 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { error } from 'console';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { MailerService } from '@nestjs-modules/mailer';
+import { RecoveryPasswordDto } from './dto/recovery-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+
+
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -17,6 +23,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private readonly mailerService: MailerService
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -105,6 +112,50 @@ export class AuthService {
 
   decodeToken(token): any {
     return this.jwtService.decode(token);
+  }
+
+  sendEmail(reqBody: RecoveryPasswordDto): void {
+    this.mailerService.sendMail({
+      to: reqBody.email,
+      subject: 'LightHub Verification Code',
+      template: './reset-password',
+      context: {
+        email: reqBody.email,
+        otp: reqBody.otp,
+      }
+    })
+  }
+
+  async sendRecoveryEmail(reqBody: RecoveryPasswordDto): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { email: reqBody.email },
+    });
+    
+    if (!user) {
+      throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
+    }    
+
+    // Use a dedicated service for handling emails (nodemailer)
+    // Send email with the reset link
+    this.sendEmail(reqBody)
+      
+    // Return an appropriate response
+    return HttpStatus.OK;
+  }
+
+  async resetPassword(reqBody: ResetPasswordDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: reqBody.email },
+    });
+    // Generate a refresh token
+    const payload = { id: user._id };
+    await this.generateToken(
+          payload,
+          user.email,
+    );
+    const hashPassword = await this.hashPassword(reqBody.password);
+    reqBody.password = hashPassword;
+    await this.userService.updateProfilePassword(reqBody);
   }
 
   private async generateToken(payload: { id: ObjectId }, email) {
