@@ -9,6 +9,9 @@ import { UserEntity } from 'src/users/users.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './stategies/jwt.strategy';
+import { GoogleStrategy } from './stategies/google.strategy';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+import { FacebookStrategy } from './stategies/facebook.strategy';
 
 @Module({
   imports: [
@@ -26,7 +29,14 @@ import { JwtStrategy } from './stategies/jwt.strategy';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
+    WebsocketGateway,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

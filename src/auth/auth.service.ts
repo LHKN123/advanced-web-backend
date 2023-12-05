@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/users/users.entity';
 import { UsersService } from 'src/users/users.service';
@@ -128,5 +133,53 @@ export class AuthService {
     const hash = await bcrypt.hash(password, salt);
 
     return hash;
+  }
+
+  async registerUser(registerUser: RegisterUserDto) {
+    if (!registerUser.password) {
+      throw error;
+    }
+
+    const hashPassword = await this.hashPassword(registerUser.password);
+    let response = await this.userService.create({
+      ...registerUser,
+      password: hashPassword,
+    });
+    if (response) {
+      const { password, ...result } = response;
+      return result;
+    }
+  }
+
+  async signInSocialLogin(user) {
+    if (!user) {
+      throw new BadRequestException('Unauthenticated');
+    }
+
+    let userExists = await this.userRepository.findOne({
+      where: { email: user.email },
+    });
+
+    if (!userExists) {
+      user = await this.registerUser({
+        username: user.firstName.concat(' ').concat(user.lastName),
+        password: 'DEFAULT PASSWORD',
+        email: user.email,
+      });
+
+      console.log('REFGISTER', user);
+    }
+
+    const payload = { id: user._id };
+    const { access_token, refresh_token } = await this.generateToken(
+      payload,
+      user.email,
+    );
+    return {
+      email: user.email,
+      username: user.username ? user.username : userExists.username,
+      access_token,
+      refresh_token,
+    };
   }
 }

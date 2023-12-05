@@ -1,20 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-// import * as dotenv from 'dotenv';
-import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-import { ValidationPipe } from '@nestjs/common';
+import { ImATeapotException, ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import passport from 'passport';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
-  // dotenv.config();
   const app = await NestFactory.create(AppModule);
-  const corsOptions: CorsOptions = {
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+
+  const options: CorsOptions = {
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: [
+      'Content-Type,Authorization,Content-Length,X-Requested-With,X-Auth-Token,Origin,POST,GET,OPTIONS,PUT,DELETE,*',
+    ],
     credentials: true,
   };
-  app.enableCors(corsOptions);
+
+  app.enableCors(options);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -46,6 +51,9 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
+
+  const ioAdapter = new IoAdapter(app);
+  app.useWebSocketAdapter(ioAdapter);
 
   await app.listen(4000);
 }
