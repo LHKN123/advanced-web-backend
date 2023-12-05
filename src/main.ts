@@ -3,23 +3,28 @@ import { AppModule } from './app.module';
 import { ImATeapotException, ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import passport from 'passport';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const clientPort = parseInt(configService.get('CLIENT_PORT'));
+  const appPort = parseInt(configService.get('APP_PORT'));
 
-  const options: CorsOptions = {
-    origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: [
-      'Content-Type,Authorization,Content-Length,X-Requested-With,X-Auth-Token,Origin,POST,GET,OPTIONS,PUT,DELETE,*',
+  const corsOptions: CorsOptions = {
+    // origin: true,
+    origin: [
+      `http://localhost:${clientPort}`,
+      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
     ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };
 
-  app.enableCors(options);
+  app.enableCors(corsOptions);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -52,9 +57,10 @@ async function bootstrap() {
     },
   });
 
+
   const ioAdapter = new IoAdapter(app);
   app.useWebSocketAdapter(ioAdapter);
 
-  await app.listen(4000);
+  await app.listen(appPort);
 }
 bootstrap();
