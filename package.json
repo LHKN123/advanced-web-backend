@@ -21,14 +21,14 @@
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.9.1",
-    "@nestjs/common": "^10.2.8",
+    "@nestjs/common": "^10.2.10",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.2.8",
     "@nestjs/graphql": "^12.0.10",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mongoose": "^10.0.2",
     "@nestjs/passport": "^10.0.2",
-    "@nestjs/platform-express": "^10.2.8",
+    "@nestjs/platform-express": "^10.2.10",
     "@nestjs/platform-socket.io": "^10.2.10",
     "@nestjs/swagger": "^7.1.16",
     "@nestjs/typeorm": "^10.0.1",
@@ -39,6 +39,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cors": "^2.8.5",
+    "cors-ts": "^1.0.3",
     "dotenv": "^16.3.1",
     "mongodb": "^5.9.1",
     "mongoose": "^7.6.4",
@@ -46,12 +47,16 @@
     "nodemailer": "^6.9.7",
     "nodemon": "^3.0.1",
     "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.7.2",
     "typeorm": "^0.3.17",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.4.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -96,5 +101,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^5.0.10"
   }
 }

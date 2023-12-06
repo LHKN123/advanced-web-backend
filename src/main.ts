@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-// import * as dotenv from 'dotenv';
-import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-import { ValidationPipe } from '@nestjs/common';
+import { ImATeapotException, ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import passport from 'passport';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
-  // dotenv.config();
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const clientPort = parseInt(configService.get('CLIENT_PORT'));
@@ -23,6 +23,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };
+
   app.enableCors(corsOptions);
 
   app.useGlobalPipes(
@@ -55,6 +56,10 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
+
+
+  const ioAdapter = new IoAdapter(app);
+  app.useWebSocketAdapter(ioAdapter);
 
   await app.listen(appPort);
 }

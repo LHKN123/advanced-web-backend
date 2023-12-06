@@ -9,10 +9,12 @@ import { UserEntity } from 'src/users/users.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './stategies/jwt.strategy';
+import { GoogleStrategy } from './stategies/google.strategy';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+import { FacebookStrategy } from './stategies/facebook.strategy';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-
 
 @Module({
   imports: [
@@ -41,21 +43,27 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           },
         },
         defaults: {
-          from: `"No Reply" <${configService.get('MAIL_FROM')}>`
+          from: `"No Reply" <${configService.get('MAIL_FROM')}>`,
         },
         template: {
           dir: join(__dirname, '/templates/email'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
-          }
-        }
+          },
+        },
       }),
       inject: [ConfigService],
-
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
+    WebsocketGateway,
+  ],
   controllers: [AuthController],
   exports: [AuthService, JwtModule],
 })
