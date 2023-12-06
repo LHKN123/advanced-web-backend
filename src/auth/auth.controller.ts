@@ -20,6 +20,7 @@ import { RecoveryPasswordDto } from './dto/recovery-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 import {
+  ApiBearerAuth,
   ApiHeader,
   ApiOkResponse,
   ApiOperation,
@@ -29,15 +30,21 @@ import {
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { GoogleOauthGuard } from './guard/google-oauth.guard';
 import { Response } from 'express';
-import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+
 import { FacebookGuard } from './guard/facebook.guard';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+import { ReturnUserDto } from './dto/return_user.dto';
+import { ConfigService } from '@nestjs/config';
+import { StringDecoder } from 'string_decoder';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private readonly websocketGateway: WebsocketGateway,
+    private readonly socketGateway: WebsocketGateway,
+    private configService: ConfigService,
   ) {}
 
   @Post('register')
@@ -53,7 +60,7 @@ export class AuthController {
   async login(@Body() reqBody: LoginUserDto) {
     return this.authService.login(reqBody);
   }
-  
+
   @Post('send-recovery-email')
   @ApiOperation({ summary: 'Send recovery email' })
   @ApiResponse({ status: 200, description: 'Send recovery email successful' })
@@ -70,7 +77,6 @@ export class AuthController {
     return this.authService.resetPassword(reqBody);
   }
 
-
   @Post('refresh-token')
   @ApiOperation({ summary: 'Get new refresh token' })
   refreshToken(@Body() reqBody: RefreshTokenDto): Promise<any> {
@@ -79,48 +85,21 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async googleLogin(@Req() _req) {
     console.log('google login');
   }
 
-  // @Get('google/callback')
-  // @UseGuards(GoogleOauthGuard)
-  // async googleAuthCallback(@Req() req, @Res() res: Response) {
-  //   console.log('USER', req.user);
-
-  //   const user = await this.authService.signInSocialLogin(req.user);
-  //   return res.redirect('http://localhost:3000');
-  //   // res.cookie('access_token', token, {
-  //   //   maxAge: 2592000000,
-  //   //   sameSite: true,
-  //   //   secure: false,
-  //   // });
-  // }
-
-  // @Get('google/callback')
-  // @UseGuards(GoogleOauthGuard)
-  // async googleAuthCallback(@Req() req, @Res() res: Response) {
-  //   const user = await this.authService.signInSocialLogin(req.user);
-
-  //   // Gửi thông tin người dùng qua WebSocket
-  //   this.appGateway.server.emit('userInfo', user);
-
-  //   // Redirect về trang frontend (thay đổi URL tùy ý)
-  //   //res.redirect('http://localhost:3000');
-  // }
-
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
+    //console.log('google callback response', res);
+    console.log('google callback request', req);
     console.log('USER', req.user);
 
-    const user = await this.authService.signInSocialLogin(req.user);
+    const auth = await this.authService.signInSocialLogin(req.user);
+    console.log('NEW USER', auth);
 
-    // Send user data to connected clients via WebSocket
-    this.websocketGateway.server.emit('login', user);
-
-    return res.redirect('http://localhost:3000');
+    return this.sendResponseSocialLogin(res, auth);
   }
 
   @Get('/facebook')
@@ -133,8 +112,43 @@ export class AuthController {
   @UseGuards(FacebookGuard)
   async facebookLoginRedirect(@Req() req, @Res() res): Promise<void> {
     console.log('USER', req.user);
-    const user = await this.authService.signInSocialLogin(req.user.user);
+    const auth = await this.authService.signInSocialLogin(req.user.user);
 
-    return res.redirect('http://localhost:3000');
+    return this.sendResponseSocialLogin(res, auth);
+  }
+
+  async sendResponseSocialLogin(
+    res: Response,
+    auth: { access_token: string; refresh_token: string },
+  ) {
+    const successRedirectUrl = (auth) =>
+      `${this.configService.get<string>(
+        'BASE_URL_FRONTEND',
+      )}/auth/oauth-success-redirect?code=${auth.access_token}`;
+
+    try {
+      const refreshTokenCookie = this.authService.getCookieRefreshToken(
+        auth.refresh_token,
+      );
+      res.setHeader('Set-Cookie', refreshTokenCookie);
+
+      return res.redirect(successRedirectUrl(auth));
+    } catch (error) {
+      return res.redirect(
+        `${this.configService.get<string>('BASE_URL_FRONTEND')}/auth?error=${
+          error.message
+        }`,
+      );
+    }
+  }
+
+  @Get('user')
+  // @ApiOperation({ summary: 'Update profile info' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getUser(@Req() req: any) {
+    const userId = req.user.id;
+    console.log('LTT', userId);
+    return this.authService.getUser(userId);
   }
 }

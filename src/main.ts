@@ -15,16 +15,35 @@ async function bootstrap() {
   const appPort = parseInt(configService.get('APP_PORT'));
 
   const corsOptions: CorsOptions = {
-    // origin: true,
-    origin: [
-      `http://localhost:${clientPort}`,
-      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
-    ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: true,
+    // origin: [
+    //   `http://localhost:${clientPort}`,
+    //   new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+    // ],
+    // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    // allowedHeaders: ['content-type'],
     credentials: true,
   };
 
   app.enableCors(corsOptions);
+  // app.use(function (req, res, next) {
+  //   res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // update to match the domain you will make the request from
+  //   res.header(
+  //     'Access-Control-Allow-Headers',
+  //     'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+  //   );
+  //   res.header('Access-Control-Allow-Credentials', 'true');
+  //   res.header(
+  //     'Access-Control-Allow-Methods',
+  //     'GET,HEAD,PUT,PATCH,POST,DELETE, OPTIONS',
+  //   );
+
+  //   if (req.method === 'OPTIONS') {
+  //     res.status(200).end();
+  //   } else {
+  //     next();
+  //   }
+  // });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -56,7 +75,6 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
-
 
   const ioAdapter = new IoAdapter(app);
   app.useWebSocketAdapter(ioAdapter);

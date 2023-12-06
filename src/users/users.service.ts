@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 import { ObjectId } from 'mongodb';
 import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -64,10 +65,26 @@ export class UsersService {
     }
   }
 
-  async getUserById(userId: string): Promise<any> {
+  async getUserById(userId: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { _id: new ObjectId(userId) },
     });
     return user;
   }
+
+  // async getUser(userId: string): Promise<any> {
+  //   //const user = this.getUserById(userId);
+  //   const user = await this.userRepository.findOne({
+  //     where: { _id: new ObjectId(userId) },
+  //   });
+  //   const payload = { id: new ObjectId(userId) };
+  //   const { access_token, refresh_token } =
+  //     await this.authService.generateToken(payload, user.email);
+  //   return {
+  //     email: user.email,
+  //     username: user.username,
+  //     access_token,
+  //     refresh_token,
+  //   };
+  // }
 }

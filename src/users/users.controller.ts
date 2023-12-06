@@ -36,6 +36,15 @@ export class UsersController {
     );
   }
 
+  // @Get('user')
+  // @ApiOperation({ summary: 'Update profile info' })
+  // @ApiBearerAuth('access-token')
+  // @UseGuards(AuthGuard('jwt'))
+  // async getUser(@Req() req: any) {
+  //   const userId = req.user.id;
+  //   return this.usersService.getUserById(userId);
+  // }
+
   // @Get(':id')
   // findOne(@Param('id') id: string): Promise<UserEntity> {
   //   return this.usersService.findOne(id);

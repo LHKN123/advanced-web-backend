@@ -20,9 +20,11 @@ export class UserEntity {
   password: string;
 
   @Column()
-  avatarUrl: string =
-    'https://pops.vn/series/tham-tu-lung-danh-conan-5e857135574ebb00334427a2';
+  avatarUrl: string = 'https://cdn-icons-png.flaticon.com/128/1144/1144760.png';
 
   @Column({ nullable: true, default: null })
   refresh_token: string;
+
+  @Column()
+  role: string = 'user';
 }

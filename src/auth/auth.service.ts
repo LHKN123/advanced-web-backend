@@ -7,7 +7,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/users/users.entity';
 import { UsersService } from 'src/users/users.service';
-import { ObjectId, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { ObjectId } from 'mongodb';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -18,8 +19,6 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { RecoveryPasswordDto } from './dto/recovery-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
-
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -28,7 +27,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -127,23 +126,23 @@ export class AuthService {
       context: {
         email: reqBody.email,
         otp: reqBody.otp,
-      }
-    })
+      },
+    });
   }
 
   async sendRecoveryEmail(reqBody: RecoveryPasswordDto): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { email: reqBody.email },
     });
-    
+
     if (!user) {
       throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
-    }    
+    }
 
     // Use a dedicated service for handling emails (nodemailer)
     // Send email with the reset link
-    this.sendEmail(reqBody)
-      
+    this.sendEmail(reqBody);
+
     // Return an appropriate response
     return HttpStatus.OK;
   }
@@ -154,16 +153,13 @@ export class AuthService {
     });
     // Generate a refresh token
     const payload = { id: user._id };
-    await this.generateToken(
-          payload,
-          user.email,
-    );
+    await this.generateToken(payload, user.email);
     const hashPassword = await this.hashPassword(reqBody.password);
     reqBody.password = hashPassword;
     await this.userService.updateProfilePassword(reqBody);
   }
 
-  private async generateToken(payload: { id: ObjectId }, email) {
+  async generateToken(payload: { id: ObjectId }, email) {
     const access_token = await this.jwtService.signAsync(payload);
     const refresh_token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
@@ -227,8 +223,37 @@ export class AuthService {
       user.email,
     );
     return {
+      // email: user.email,
+      // username: user.username ? user.username : userExists.username,
+      access_token,
+      refresh_token,
+    };
+  }
+
+  getCookieRefreshToken(token: string) {
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'EXP_IN_REFRESH_TOKEN',
+    )}`;
+    return cookie;
+  }
+
+  async getUser(userId: string): Promise<any> {
+    const objectId = new ObjectId(userId);
+    console.log('objectId', objectId);
+    const user = await this.userRepository.findOne({
+      where: { _id: objectId },
+    });
+
+    console.log('user', user);
+
+    const payload = { id: user._id };
+    const { access_token, refresh_token } = await this.generateToken(
+      payload,
+      user.email,
+    );
+    return {
       email: user.email,
-      username: user.username ? user.username : userExists.username,
+      username: user.username,
       access_token,
       refresh_token,
     };

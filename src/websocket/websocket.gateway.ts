@@ -1,33 +1,49 @@
+import { Req } from '@nestjs/common';
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
+import { ReturnUserDto } from 'src/auth/dto/return_user.dto';
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: 'login', cors: { origin: '*' } })
 export class WebsocketGateway {
   @WebSocketServer()
-  server: Server;
+  io: Server;
 
-  @SubscribeMessage('login')
-  handleLogin(@MessageBody() user: any): void {
-    // Handle the login logic and send the user data back to the client
-    const processedUserData = this.processLogin(user);
-
-    // Send the processed user data back to the client
-    this.server.emit('loginResponse', processedUserData);
+  async handleConnection(client: Socket) {
+    console.log(`Login client id ${client.id} connected`);
+    this.io.emit('loginResponse', 'Hello world');
   }
 
-  private processLogin(user: any): any {
-    // Your login logic here
-    // Example: Save user to the database, generate tokens, etc.
+  handleDisconnect(client: Socket) {
+    console.log(`Login client id ${client.id} failed`);
+  }
 
-    // Return the processed user data
+  @SubscribeMessage('loginInfo')
+  handleLogin(
+    // @ConnectedSocket() client: Socket,
+    @MessageBody() message: string,
+    // @Req() req: any,
+  ): void {
+    // const processedUserData = this.processLogin(user);
+
+    //this.io.emit('loginResponse', processedUserData);
+
+    console.log('Sending login response', message);
+    this.io.emit('loginResponse', message);
+    console.log('Finish login response');
+  }
+
+  private processLogin(user: ReturnUserDto): ReturnUserDto {
     return {
       username: user.username,
-      // Other user-related data...
+      email: user.email,
+      access_token: user.access_token,
+      refresh_token: user.refresh_token,
     };
   }
 }
