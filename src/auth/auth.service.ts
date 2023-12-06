@@ -143,6 +143,34 @@ export class AuthService {
     return HttpStatus.OK;
   }
 
+  sendVerifyAccountEmail(reqBody: RecoveryPasswordDto): void {
+    this.mailerService.sendMail({
+      to: reqBody.email,
+      subject: 'LightHub Verification Code',
+      template: './verify-account',
+      context: {
+        email: reqBody.email,
+        otp: reqBody.otp,
+      }
+    })
+  }
+
+  async sendVerificationEmail(reqBody: RecoveryPasswordDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: reqBody.email },
+    });
+    
+    if (!user) {
+      throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
+    }    
+
+    // Use a dedicated service for handling emails (nodemailer)
+    this.sendVerifyAccountEmail(reqBody)
+      
+    // Return an appropriate response
+    return HttpStatus.OK;
+  }
+
   async resetPassword(reqBody: ResetPasswordDto) {
     const user = await this.userRepository.findOne({
       where: { email: reqBody.email },

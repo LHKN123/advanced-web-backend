@@ -51,6 +51,15 @@ export class AuthController {
     return this.authService.sendRecoveryEmail(reqBody);
   }
 
+  @Post('send-verification')
+  @ApiOperation({ summary: 'Send verification account email' })
+  @ApiResponse({ status: 200, description: 'Send verification email successful' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async sendVerificationEmail(@Body() reqBody: RecoveryPasswordDto) {
+    // Implement your password reset logic here
+    return this.authService.sendVerificationEmail(reqBody);
+  }
+
   @Post('reset-password')
   @ApiOperation({ summary: 'Update password for user' })
   async resetPassword(@Body() reqBody: ResetPasswordDto) {
