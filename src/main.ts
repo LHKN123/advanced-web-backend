@@ -57,7 +57,6 @@ async function bootstrap() {
     },
   });
 
-
   const ioAdapter = new IoAdapter(app);
   app.useWebSocketAdapter(ioAdapter);
 
