@@ -20,8 +20,7 @@ async function bootstrap() {
     //   `http://localhost:${clientPort}`,
     //   new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
     // ],
-    // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    // allowedHeaders: ['content-type'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };
 

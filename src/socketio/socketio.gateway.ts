@@ -18,9 +18,18 @@ class tokenPayload {
   id: string;
 }
 
+// let configService: ConfigService;
+// const clientPort = parseInt(configService.get('CLIENT_PORT'));
+const clientPort = 3000;
+
 @WebSocketGateway({
   namespace: 'notification',
-  cors: { origin: '*' },
+  cors: {
+    origin: [
+      `http://localhost:${clientPort}`,
+      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+    ],
+  },
 })
 export class SocketioGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -40,24 +49,31 @@ export class SocketioGateway
     this.logger.log('Websocket gateway initialized');
   }
 
+  // revise this later
   async onModuleInit() {
     this.io.on('connection', async (socket) => this.handleConnection(socket));
   }
 
   async handleConnection(client: Socket) {
     try {
-      let token = client.handshake.headers.authorization.split(' ')[0];
-      if (token === 'Bearer') {
-        token = client.handshake.headers.authorization.split(' ')[1];
-      }
       const sockets = this.io.sockets;
+
+      let authorization = client.handshake.auth.token;
+
+      console.log(authorization);
+
+      let token = authorization.split(' ')[0];
+      if (token === 'Bearer') {
+        token = authorization.split(' ')[1];
+      }
+      if (!token) {
+        client.disconnect(true);
+      }
+
       const publicKey = await this.configService.get<string>(
         'EXP_IN_REFRESH_TOKEN',
       );
       const secret = await this.configService.get<string>('JWT_SECRET');
-      if (!token) {
-        client.disconnect(true);
-      }
       const payload = (await this.jwtService.verifyAsync(token, {
         publicKey,
         secret,
@@ -92,6 +108,7 @@ export class SocketioGateway
     @Req() req: any,
   ) {
     console.log(req.user);
+    this.io.on('sendMessage', (message) => {});
     this.io.emit('onMessage', message);
   }
 }
