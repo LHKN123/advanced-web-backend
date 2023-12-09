@@ -14,8 +14,9 @@ export class ClassesService {
   constructor(
     @InjectRepository(ClassEntity)
     private classRepository: Repository<ClassEntity>,
-    private classListRepository: Repository<ClassListEntity>,
     private configService: ConfigService,
+    @InjectRepository(ClassListEntity)
+    private classListRepository: Repository<ClassListEntity>,
   ) {}
 
   async create(classDto: CreateClassDto, host_id: string): Promise<any> {
