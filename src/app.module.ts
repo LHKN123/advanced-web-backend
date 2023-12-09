@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 import { WebsocketGateway } from './websocket/websocket.gateway';
 
 import { SocketioModule } from './socketio/socketio.module';
+import { ClassesModule } from './classes/classes.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,6 +35,7 @@ import { SocketioModule } from './socketio/socketio.module';
     MinioClientModule,
     UploadModule,
     SocketioModule,
+    ClassesModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebsocketGateway],

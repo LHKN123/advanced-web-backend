@@ -50,7 +50,6 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Create new account' })
   async register(@Body() reqBody: RegisterUserDto) {
-    console.log('register controller', reqBody);
     return this.authService.register(reqBody);
   }
 
@@ -72,7 +71,10 @@ export class AuthController {
 
   @Post('send-verification')
   @ApiOperation({ summary: 'Send verification account email' })
-  @ApiResponse({ status: 200, description: 'Send verification email successful' })
+  @ApiResponse({
+    status: 200,
+    description: 'Send verification email successful',
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async sendVerificationEmail(@Body() reqBody: RecoveryPasswordDto) {
     // Implement your password reset logic here
@@ -94,20 +96,12 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  async googleLogin(@Req() _req) {
-    console.log('google login');
-  }
+  async googleLogin(@Req() _req) {}
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
-    //console.log('google callback response', res);
-    console.log('google callback request', req);
-    console.log('USER', req.user);
-
     const auth = await this.authService.signInSocialLogin(req.user);
-    console.log('NEW USER', auth);
-
     return this.sendResponseSocialLogin(res, auth);
   }
 
@@ -157,7 +151,6 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   async getUser(@Req() req: any) {
     const userId = req.user.id;
-    console.log('LTT', userId);
     return this.authService.getUser(userId);
   }
 }
