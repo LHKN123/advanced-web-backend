@@ -15,11 +15,12 @@ async function bootstrap() {
   const appPort = parseInt(configService.get('APP_PORT'));
 
   const corsOptions: CorsOptions = {
-    origin: true,
-    // origin: [
-    //   `http://localhost:${clientPort}`,
-    //   new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
-    // ],
+    // origin: true,
+    origin: [
+      `http://localhost:${clientPort}`,
+      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+      'https://advanced-web-frontend-zeta.vercel.app/',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   };

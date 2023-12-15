@@ -28,6 +28,7 @@ const clientPort = 3000;
     origin: [
       `http://localhost:${clientPort}`,
       new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+      'https://advanced-web-frontend-zeta.vercel.app/',
     ],
   },
 })
@@ -58,14 +59,10 @@ export class SocketioGateway
     try {
       const sockets = this.io.sockets;
 
-      let authorization = client.handshake.auth.token;
+      let token = client.handshake.auth.token;
 
-      console.log(authorization);
+      console.log(token);
 
-      let token = authorization.split(' ')[0];
-      if (token === 'Bearer') {
-        token = authorization.split(' ')[1];
-      }
       if (!token) {
         client.disconnect(true);
       }

@@ -8,7 +8,6 @@ import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { WebsocketGateway } from './websocket/websocket.gateway';
 
 import { SocketioModule } from './socketio/socketio.module';
 import { ClassesModule } from './classes/classes.module';
@@ -38,6 +37,6 @@ import { ClassesModule } from './classes/classes.module';
     ClassesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, WebsocketGateway],
+  providers: [AppService],
 })
 export class AppModule {}

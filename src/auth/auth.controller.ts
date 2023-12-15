@@ -32,7 +32,6 @@ import { GoogleOauthGuard } from './guard/google-oauth.guard';
 import { Response } from 'express';
 
 import { FacebookGuard } from './guard/facebook.guard';
-import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { ReturnUserDto } from './dto/return_user.dto';
 import { ConfigService } from '@nestjs/config';
 import { StringDecoder } from 'string_decoder';
@@ -43,7 +42,6 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private readonly socketGateway: WebsocketGateway,
     private configService: ConfigService,
   ) {}
 
