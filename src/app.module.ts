@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 
 import { SocketioModule } from './socketio/socketio.module';
 import { ClassesModule } from './classes/classes.module';
+import { NotificationModule } from './notification/notification.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,6 +36,7 @@ import { ClassesModule } from './classes/classes.module';
     UploadModule,
     SocketioModule,
     ClassesModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

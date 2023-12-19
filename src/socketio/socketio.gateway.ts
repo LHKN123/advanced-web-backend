@@ -13,6 +13,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import { WsJwtAuthGuard } from './guard/ws-jwt.guard';
+import { SocketWithData } from './dto/socket-with-data.dto';
 
 class tokenPayload {
   id: string;
@@ -46,16 +47,17 @@ export class SocketioGateway
   @WebSocketServer() io: Namespace;
   socketMap = new Map<string, tokenPayload>();
 
-  afterInit(server: any) {
+  afterInit(): void {
     this.logger.log('Websocket gateway initialized');
   }
 
   // revise this later
-  async onModuleInit() {
-    this.io.on('connection', async (socket) => this.handleConnection(socket));
-  }
+  // async onModuleInit() {
+  //   this.io.on('connection', async (socket) => this.handleConnection(socket));
+  // }
 
-  async handleConnection(client: Socket) {
+  async handleConnection(client: SocketWithData) {
+    // async handleConnection(client: Socket) {
     try {
       const sockets = this.io.sockets;
 
@@ -83,6 +85,18 @@ export class SocketioGateway
 
       console.log(`Client with id ${client.id} connected`);
       console.log(`Number of connected sockets: ${sockets.size} connected`);
+
+      // const roomName = client.class_id + '/' + client.review_id;
+      // await client.join(roomName);
+
+      // const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
+
+      // console.log(
+      //   `userID: ${client.id} joined room with name: ${roomName}`,
+      // );
+      // console.log(
+      //   `Total clients connected to room '${roomName}': ${connectedClients}`,
+      // );
     } catch (error) {
       console.error('Error handling connection:', error.message);
       client.disconnect(true);
@@ -100,12 +114,30 @@ export class SocketioGateway
   @SubscribeMessage('newMessage')
   @UseGuards(WsJwtAuthGuard)
   sendMessage(
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: SocketWithData,
     @MessageBody() message: any,
     @Req() req: any,
   ) {
     console.log(req.user);
     this.io.on('sendMessage', (message) => {});
     this.io.emit('onMessage', message);
+  }
+
+  // add more subscribe messages?
+  @SubscribeMessage('notify')
+  @UseGuards(WsJwtAuthGuard)
+  notify(
+    // @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: SocketWithData,
+    // @MessageBody() message: any,
+    @Req() req: any,
+  ) {
+    console.log('req user', req.user);
+    console.log('req', req);
+
+    // this.io.on('triggerNotification', (message) => {});
+    const roomName = client.class_id + '/' + client.review_id;
+    this.io.to(roomName).emit('returnNotification', client.message);
   }
 }
