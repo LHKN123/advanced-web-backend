@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
-  @Get(':classId')
+  @Get(':classId/allReviews')
   @ApiOperation({ summary: 'Get all reviews in class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
@@ -16,12 +16,20 @@ export class ReviewController {
     return await this.reviewService.getAllReview(classId);
   }
 
-  @Get(':classId')
+  @Get(':classId/studentReviews')
   @ApiOperation({ summary: 'Get student reviews with id in class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getStudentReview(@Req() req: any, @Param('classId') classId: string) {
     const userId = req.user.id;
     return await this.reviewService.getStudentReview(userId, classId);
+  }
+
+  @Get(':reviewId/comments')
+  @ApiOperation({ summary: 'Get student reviews with id in class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getReviewComment(@Req() req: any, @Param('reviewId') reviewId: string) {
+    return await this.reviewService.getReviewComment(reviewId);
   }
 }
