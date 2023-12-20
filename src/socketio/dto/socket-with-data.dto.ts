@@ -30,4 +30,11 @@ export class NotificationDto {
   is_read: boolean;
 }
 
-export type SocketWithData = Socket & NotificationDto;
+export class SocketDto {
+  @IsNotEmpty()
+  class_id: string;
+
+  review_id_list: string[];
+}
+
+export type SocketWithData = Socket & SocketDto;

@@ -27,4 +27,7 @@ export class UserEntity {
 
   @Column()
   role: string = 'user';
+
+  @Column({ nullable: true, default: null })
+  student_id: string;
 }
