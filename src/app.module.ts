@@ -12,6 +12,8 @@ import { WebsocketGateway } from './websocket/websocket.gateway';
 
 import { SocketioModule } from './socketio/socketio.module';
 import { ClassesModule } from './classes/classes.module';
+import { RubricModule } from './rubric/rubric.module';
+import { GradeModule } from './grade/grade.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +38,8 @@ import { ClassesModule } from './classes/classes.module';
     UploadModule,
     SocketioModule,
     ClassesModule,
+    RubricModule,
+    GradeModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebsocketGateway],
