@@ -10,7 +10,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './stategies/jwt.strategy';
 import { GoogleStrategy } from './stategies/google.strategy';
-import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { FacebookStrategy } from './stategies/facebook.strategy';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
@@ -64,7 +63,6 @@ import { SocketioModule } from 'src/socketio/socketio.module';
     JwtStrategy,
     GoogleStrategy,
     FacebookStrategy,
-    WebsocketGateway,
   ],
   controllers: [AuthController],
   exports: [AuthService, JwtModule],

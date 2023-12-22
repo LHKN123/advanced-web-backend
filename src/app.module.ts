@@ -8,10 +8,11 @@ import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { WebsocketGateway } from './websocket/websocket.gateway';
 
 import { SocketioModule } from './socketio/socketio.module';
 import { ClassesModule } from './classes/classes.module';
+import { NotificationModule } from './notification/notification.module';
+import { ReviewModule } from './review/review.module';
 import { RubricModule } from './rubric/rubric.module';
 import { GradeModule } from './grade/grade.module';
 @Module({
@@ -38,10 +39,12 @@ import { GradeModule } from './grade/grade.module';
     UploadModule,
     SocketioModule,
     ClassesModule,
+    NotificationModule,
+    ReviewModule,
     RubricModule,
     GradeModule,
   ],
   controllers: [AppController],
-  providers: [AppService, WebsocketGateway],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -32,7 +32,7 @@ export class UsersController {
     return this.usersService.updateProfile(
       userId,
       reqBody.username,
-      reqBody.email,
+      reqBody.studentId,
     );
   }
 

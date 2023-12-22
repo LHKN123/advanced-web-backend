@@ -13,6 +13,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import { WsJwtAuthGuard } from './guard/ws-jwt.guard';
+import { SocketWithData } from './dto/socket-with-data.dto';
 
 class tokenPayload {
   id: string;
@@ -28,6 +29,7 @@ const clientPort = 3000;
     origin: [
       `http://localhost:${clientPort}`,
       new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+      'https://advanced-web-frontend-zeta.vercel.app/',
     ],
   },
 })
@@ -36,8 +38,8 @@ export class SocketioGateway
 {
   private readonly logger = new Logger(SocketioGateway.name);
   constructor(
-    // for grading services
-    // private readonly gradeService: GradeService,
+    // for grade / class / review services
+    // private readonly classService: ClassService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -45,27 +47,18 @@ export class SocketioGateway
   @WebSocketServer() io: Namespace;
   socketMap = new Map<string, tokenPayload>();
 
-  afterInit(server: any) {
+  afterInit(): void {
     this.logger.log('Websocket gateway initialized');
   }
 
-  // revise this later
-  async onModuleInit() {
-    this.io.on('connection', async (socket) => this.handleConnection(socket));
-  }
-
-  async handleConnection(client: Socket) {
+  async handleConnection(client: SocketWithData) {
     try {
       const sockets = this.io.sockets;
 
-      let authorization = client.handshake.auth.token;
+      let token = client.handshake.auth.token;
 
-      console.log(authorization);
+      console.log(token);
 
-      let token = authorization.split(' ')[0];
-      if (token === 'Bearer') {
-        token = authorization.split(' ')[1];
-      }
       if (!token) {
         client.disconnect(true);
       }
@@ -86,6 +79,19 @@ export class SocketioGateway
 
       console.log(`Client with id ${client.id} connected`);
       console.log(`Number of connected sockets: ${sockets.size} connected`);
+
+      const roomNameList = [client.class_id, ...client.review_id_list];
+      await client.join(roomNameList);
+
+      // log test
+      for (const roomName of roomNameList) {
+        const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
+
+        console.log(`userID: ${client.id} joined room with name: ${roomName}`);
+        console.log(
+          `Total clients connected to room '${roomName}': ${connectedClients}`,
+        );
+      }
     } catch (error) {
       console.error('Error handling connection:', error.message);
       client.disconnect(true);
@@ -103,12 +109,30 @@ export class SocketioGateway
   @SubscribeMessage('newMessage')
   @UseGuards(WsJwtAuthGuard)
   sendMessage(
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: SocketWithData,
     @MessageBody() message: any,
     @Req() req: any,
   ) {
     console.log(req.user);
     this.io.on('sendMessage', (message) => {});
     this.io.emit('onMessage', message);
+  }
+
+  // add more subscribe messages?
+  @SubscribeMessage('notify')
+  @UseGuards(WsJwtAuthGuard)
+  notify(
+    @ConnectedSocket() client: SocketWithData,
+    @MessageBody() message: any,
+    @Req() req: any,
+  ) {
+    console.log('req user', req.user);
+    console.log('req', req);
+
+    // this.io.on('notify', (message) => {});
+
+    const roomNameList = [client.class_id, ...client.review_id_list];
+    this.io.to(roomNameList).emit('returnNotification', message);
   }
 }

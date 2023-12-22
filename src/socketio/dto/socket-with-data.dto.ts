@@ -1,26 +1,40 @@
-import { IsEmail, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, MaxLength } from 'class-validator';
 import { Socket } from 'socket.io';
 
 export class NotificationDto {
   @IsNotEmpty()
+  class_id: string;
+
+  review_id: string;
+
+  @IsNotEmpty()
   sender_id: string;
 
   @IsNotEmpty()
-  @IsEmail()
-  sender_email: string;
+  sender_role: string; //teacher/student
 
-  // sender_role: teacher/student
+  @IsNotEmpty()
+  receiver_id_list: string[];
 
-  //   @IsNotEmpty()
-  //   receiver_id_list: string[];
+  @IsNotEmpty()
+  @MaxLength(256)
+  message: string;
 
-  //   @IsNotEmpty()
-  //   @MaxLength(256)
-  //   message: string;
+  @IsNotEmpty()
+  redirect_url: string;
 
-  //   redirect_url: string;
+  @IsNotEmpty()
+  created_at: string;
 
-  //   create_date: Date;
+  @IsBoolean()
+  is_read: boolean;
 }
 
-export type SocketWithData = Socket & NotificationDto;
+export class SocketDto {
+  @IsNotEmpty()
+  class_id: string;
+
+  review_id_list: string[];
+}
+
+export type SocketWithData = Socket & SocketDto;
