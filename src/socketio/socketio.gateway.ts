@@ -38,8 +38,8 @@ export class SocketioGateway
 {
   private readonly logger = new Logger(SocketioGateway.name);
   constructor(
-    // for grading services
-    // private readonly gradeService: GradeService,
+    // for grade / class / review services
+    // private readonly classService: ClassService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -51,13 +51,7 @@ export class SocketioGateway
     this.logger.log('Websocket gateway initialized');
   }
 
-  // revise this later
-  // async onModuleInit() {
-  //   this.io.on('connection', async (socket) => this.handleConnection(socket));
-  // }
-
   async handleConnection(client: SocketWithData) {
-    // async handleConnection(client: Socket) {
     try {
       const sockets = this.io.sockets;
 
@@ -86,17 +80,18 @@ export class SocketioGateway
       console.log(`Client with id ${client.id} connected`);
       console.log(`Number of connected sockets: ${sockets.size} connected`);
 
-      // const roomName = client.class_id + '/' + client.review_id;
-      // await client.join(roomName);
+      const roomNameList = [client.class_id, ...client.review_id_list];
+      await client.join(roomNameList);
 
-      // const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
+      // log test
+      for (const roomName of roomNameList) {
+        const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
 
-      // console.log(
-      //   `userID: ${client.id} joined room with name: ${roomName}`,
-      // );
-      // console.log(
-      //   `Total clients connected to room '${roomName}': ${connectedClients}`,
-      // );
+        console.log(`userID: ${client.id} joined room with name: ${roomName}`);
+        console.log(
+          `Total clients connected to room '${roomName}': ${connectedClients}`,
+        );
+      }
     } catch (error) {
       console.error('Error handling connection:', error.message);
       client.disconnect(true);
@@ -128,16 +123,16 @@ export class SocketioGateway
   @SubscribeMessage('notify')
   @UseGuards(WsJwtAuthGuard)
   notify(
-    // @ConnectedSocket() client: Socket,
     @ConnectedSocket() client: SocketWithData,
-    // @MessageBody() message: any,
+    @MessageBody() message: any,
     @Req() req: any,
   ) {
     console.log('req user', req.user);
     console.log('req', req);
 
-    // this.io.on('triggerNotification', (message) => {});
-    const roomName = client.class_id + '/' + client.review_id;
-    this.io.to(roomName).emit('returnNotification', client.message);
+    // this.io.on('notify', (message) => {});
+
+    const roomNameList = [client.class_id, ...client.review_id_list];
+    this.io.to(roomNameList).emit('returnNotification', message);
   }
 }

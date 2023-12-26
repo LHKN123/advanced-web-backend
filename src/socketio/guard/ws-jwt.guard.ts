@@ -7,8 +7,8 @@ import { Observable } from 'rxjs';
 
 export class WsJwtAuthGuard extends AuthGuard('ws-jwt') {
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {
     super();
   }
@@ -18,12 +18,12 @@ export class WsJwtAuthGuard extends AuthGuard('ws-jwt') {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const client = context.switchToWs().getClient();
     try {
-      const secret = this.configService.get<string>('JWT_SECRET');
-      const publicKey = this.configService.get<string>('EXP_IN_REFRESH_TOKEN');
+      // const secret = this.configService.get<string>('JWT_SECRET');
+      // const publicKey = this.configService.get<string>('EXP_IN_REFRESH_TOKEN');
 
-      const token = client.handshake.auth.token;
+      // const token = client.handshake.auth.token;
 
-      this.jwtService.verifyAsync(token, { secret, publicKey });
+      // this.jwtService.verifyAsync(token, { secret, publicKey });
       return super.canActivate(new ExecutionContextHost([client]));
     } catch (err) {
       client.disconnect(true);

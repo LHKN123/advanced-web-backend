@@ -31,7 +31,7 @@ export class UsersService {
     }
   }
 
-  async updateProfile(id: string, username: string, studentId: string) {
+  async updateProfile(id: string, username: string, student_id: string) {
     console.log('UPDATE PROFILE FOR USERID: ', id);
     const objectId = new ObjectId(id);
     console.log('objectId', objectId);
@@ -50,7 +50,7 @@ export class UsersService {
     //   { username: username },
     // );
     console.log(updatedUser);
-    return this.userRepository.save({ ...updatedUser, studentId, username });
+    return this.userRepository.save({ ...updatedUser, username, student_id });
   }
 
   async updateProfilePassword(reqUser: ResetPasswordDto) {

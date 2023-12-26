@@ -12,6 +12,9 @@ import { AppService } from './app.service';
 import { SocketioModule } from './socketio/socketio.module';
 import { ClassesModule } from './classes/classes.module';
 import { NotificationModule } from './notification/notification.module';
+import { ReviewModule } from './review/review.module';
+import { RubricModule } from './rubric/rubric.module';
+import { GradeModule } from './grade/grade.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +40,9 @@ import { NotificationModule } from './notification/notification.module';
     SocketioModule,
     ClassesModule,
     NotificationModule,
+    ReviewModule,
+    RubricModule,
+    GradeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
