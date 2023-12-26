@@ -36,10 +36,10 @@ export class RubricService {
   }
 
   async get(class_id: string): Promise<any> {
-    const allRubrics = await this.rubricRepository.findOne({
+    const allRubrics = await this.rubricRepository.find({
       where: { class_id: class_id },
     });
-
+    console.log('All Rubrics found', allRubrics, class_id);
     return allRubrics;
   }
 
