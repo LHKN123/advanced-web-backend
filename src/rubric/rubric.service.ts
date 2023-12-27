@@ -59,6 +59,7 @@ export class RubricService {
 
   async update(rubricDto: UpdateAllRubricDto) {
     rubricDto.rubrics.map(async (item) => {
+      console.log('ITEM: ', item.gradeName);
       const objectId = new ObjectId(item._id);
       const rubric = await this.rubricRepository.findOne({
         where: { _id: objectId },

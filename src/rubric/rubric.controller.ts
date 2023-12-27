@@ -60,6 +60,7 @@ export class RubricController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(200)
   async update(@Req() req: any, @Body() reqBody: UpdateAllRubricDto) {
+    console.log('Update rubric', reqBody.rubrics[0]);
     this.rubricService.update(reqBody);
   }
 }
