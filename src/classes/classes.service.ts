@@ -46,7 +46,7 @@ export class ClassesService {
   }
 
   async getAllClasses(host_id: string): Promise<any> {
-    const allClasses = await this.classRepository.findOne({
+    const allClasses = await this.classRepository.find({
       where: { host_id: host_id },
     });
 
