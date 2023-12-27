@@ -71,6 +71,38 @@ export class AuthService {
       refresh_token,
     };
   }
+  async loginAdmin(loginUserDto: LoginUserDto): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { email: loginUserDto.email },
+    });
+
+    if (!user) {
+      throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
+    }
+
+    if (user.role !== 'admin') {
+      throw new HttpException('User is not an admin', HttpStatus.UNAUTHORIZED);
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(
+      loginUserDto.password,
+      user.password,
+    );
+
+    if (!isPasswordCorrect) {
+      throw new HttpException(
+        'Password is not correct',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const payload = { id: user._id };
+    const { access_token, refresh_token } = await this.generateToken(
+      payload,
+      user.email,
+    );
+    return { access_token, refresh_token, ...user};
+  }
 
   async refreshToken(refresh_token: string): Promise<any> {
     try {
@@ -106,6 +138,7 @@ export class AuthService {
     const hashPassword = await this.hashPassword(registerUser.password);
     let response = await this.userService.create({
       ...registerUser,
+      role: 'user',
       password: hashPassword,
     });
     if (response) {
@@ -113,6 +146,24 @@ export class AuthService {
       return result;
     }
   }
+
+  async registerAdmin(registerUser: RegisterUserDto) {
+    if (!registerUser.password) {
+      throw error;
+    }
+
+    const hashPassword = await this.hashPassword(registerUser.password);
+    let response = await this.userService.create({
+      ...registerUser,
+      role: 'admin',
+      password: hashPassword,
+    });
+    if (response) {
+      const { password, ...result } = response;
+      return result;
+    }
+  }
+
 
   decodeToken(token): any {
     return this.jwtService.decode(token);
@@ -239,6 +290,7 @@ export class AuthService {
       user = await this.registerUser({
         username: user.firstName.concat(' ').concat(user.lastName),
         password: 'DEFAULT PASSWORD',
+        role: 'user',
         email: user.email,
       });
 

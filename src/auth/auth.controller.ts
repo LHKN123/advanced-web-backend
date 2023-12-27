@@ -58,6 +58,19 @@ export class AuthController {
     return this.authService.login(reqBody);
   }
 
+  @Post('/admin/login')
+  @ApiOperation({ summary: 'Sign in admin account' })
+  @UsePipes(ValidationPipe)
+  async loginAdmin(@Body() reqBody: LoginUserDto) {
+    return this.authService.loginAdmin(reqBody);
+  }
+
+  @Post('/admin/register')
+  @ApiOperation({ summary: 'Create new admin account' })
+  async registerAdmin(@Body() reqBody: RegisterUserDto) {
+    return this.authService.registerAdmin(reqBody);
+  }
+
   @Post('send-recovery-email')
   @ApiOperation({ summary: 'Send recovery email' })
   @ApiResponse({ status: 200, description: 'Send recovery email successful' })
