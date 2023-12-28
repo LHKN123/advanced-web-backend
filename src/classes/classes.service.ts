@@ -69,9 +69,17 @@ export class ClassesService {
     return _class;
   }
 
-  async getMembers(class_id: string, user_id: string): Promise<any> {
+  async getMembers(class_id: string): Promise<any> {
     const classList = await this.classListRepository.find({
       where: { class_id: class_id },
+    });
+
+    const curClass = await this.classRepository.findOne({
+      where: { _id: new ObjectId(class_id) },
+    });
+
+    const host_user = await this.userRepository.findOne({
+      where: { _id: new ObjectId(curClass.host_id) },
     });
 
     const members = await Promise.all(
@@ -80,10 +88,14 @@ export class ClassesService {
           where: { _id: new ObjectId(member.user_id) },
         });
 
-        return { ...member, avatar_url: user?.avatarUrl }; // Use optional chaining to avoid errors if user is null
+        return {
+          ...member,
+          avatar_url: user?.avatarUrl,
+          fullName: user?.username,
+        }; // Use optional chaining to avoid errors if user is null
       }),
     );
-    return members;
+    return { host_user: host_user, members: members };
   }
 
   async inviteMember(
@@ -150,6 +162,19 @@ export class ClassesService {
       return res.redirect(`http://localhost:3000/enrolled/${classId}/detail`);
     } else {
       return res.redirect(`http://localhost:3000/auth`);
+    }
+  }
+
+  async deleteMember(class_id: string, member_id: string) {
+    const member = await this.classListRepository.findOne({
+      where: { class_id: class_id, user_id: member_id },
+    });
+
+    if (member) {
+      await this.classListRepository.remove(member);
+      return HttpStatus.OK;
+    } else {
+      throw new HttpException("Member doesn't exist", HttpStatus.CONFLICT);
     }
   }
 }

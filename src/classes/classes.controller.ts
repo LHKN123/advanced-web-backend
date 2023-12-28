@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -58,8 +59,8 @@ export class ClassesController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getMembers(@Req() req: any, @Param('classId') classId: string) {
-    const user_id = req.user.id;
-    return await this.classService.getMembers(classId, user_id);
+    // const user_id = req.user.id;
+    return await this.classService.getMembers(classId);
   }
 
   @Post(':classId/members/invite-member')
@@ -89,5 +90,17 @@ export class ClassesController {
   ) {
     console.log('Accept invitation', params);
     this.classService.acceptInvitation(classId, params, res);
+  }
+
+  @Delete(':classId/members/:memberId')
+  @ApiOperation({ summary: 'Delete a member from the class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async deleteRubric(
+    @Req() req: any,
+    @Param('classId') class_id: string,
+    @Param('memberId') member_id: string,
+  ) {
+    return await this.classService.deleteMember(class_id, member_id);
   }
 }
