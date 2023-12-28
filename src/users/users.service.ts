@@ -32,13 +32,10 @@ export class UsersService {
   }
 
   async updateProfile(id: string, username: string, student_id: string) {
-    console.log('UPDATE PROFILE FOR USERID: ', id);
     const objectId = new ObjectId(id);
-    console.log('objectId', objectId);
     const updatedUser = await this.userRepository.findOne({
       where: { _id: objectId },
     });
-    console.log('UPDATE', updatedUser);
     if (!updatedUser) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -49,7 +46,6 @@ export class UsersService {
     //   { _id: objectId },
     //   { username: username },
     // );
-    console.log(updatedUser);
     return this.userRepository.save({ ...updatedUser, username, student_id });
   }
 
