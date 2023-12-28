@@ -70,11 +70,20 @@ export class ClassesService {
   }
 
   async getMembers(class_id: string, user_id: string): Promise<any> {
-    const _class = await this.classListRepository.find({
+    const classList = await this.classListRepository.find({
       where: { class_id: class_id },
     });
 
-    return _class;
+    const members = await Promise.all(
+      classList.map(async (member) => {
+        const user = await this.userRepository.findOne({
+          where: { _id: new ObjectId(member.user_id) },
+        });
+
+        return { ...member, avatar_url: user?.avatarUrl }; // Use optional chaining to avoid errors if user is null
+      }),
+    );
+    return members;
   }
 
   async inviteMember(
