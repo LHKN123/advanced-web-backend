@@ -150,6 +150,9 @@ export class ClassesService {
     });
 
     if (existedUser) {
+      if (!existedUser.student_id) {
+        return res.redirect(`http://localhost:3000/profile/empty-student-id`);
+      }
       const newMember = this.classListRepository.create({
         class_id: classId,
         user_id: existedUser._id.toString(),
