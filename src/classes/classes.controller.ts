@@ -2,15 +2,25 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
+  Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ClassesService } from './classes.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { AddMemberDto } from './dto/add_member.dto';
+import { Response } from 'express';
 
 @ApiTags('classes')
 @Controller('classes')
@@ -36,7 +46,7 @@ export class ClassesController {
   }
 
   @Get(':classId')
-  @ApiOperation({ summary: 'Get all classes created by the host' })
+  @ApiOperation({ summary: 'Get class info created by the host' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getClassById(@Req() req: any, @Param('classId') classId: string) {
@@ -50,5 +60,34 @@ export class ClassesController {
   async getMembers(@Req() req: any, @Param('classId') classId: string) {
     const user_id = req.user.id;
     return await this.classService.getMembers(classId, user_id);
+  }
+
+  @Post(':classId/members/invite-member')
+  @ApiOperation({ summary: 'Send invitation mail' })
+  @ApiResponse({
+    status: 200,
+    description: 'Send invitation mail successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async inviteMember(
+    @Req() req: any,
+    @Body() reqBody: AddMemberDto,
+    @Param('classId') classId: string,
+  ) {
+    const host_id = req.user.id;
+    return this.classService.inviteMember(classId, reqBody, host_id);
+  }
+
+  @Get(':classId/members/accept-invitation')
+  @ApiOperation({ summary: 'Accept invitation mail' })
+  async acceptInvitation(
+    @Query() params: AddMemberDto,
+    @Res() res: Response,
+    @Param('classId') classId: string,
+  ) {
+    console.log('Accept invitation', params);
+    this.classService.acceptInvitation(classId, params, res);
   }
 }

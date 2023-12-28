@@ -19,6 +19,9 @@ export class ClassListEntity {
   @Column()
   role: string;
 
-  @Column()
+  @Column({ nullable: true, default: null })
   student_id: string;
+
+  @Column()
+  email: string;
 }
