@@ -44,8 +44,8 @@ export class ClassesService {
       const savedClass = await this.classRepository.save(newClass);
 
       savedClass.invite_url = `${this.configService.get<string>(
-        'BASE_URL_FRONTEND',
-      )}/class/${savedClass._id}?code=${savedClass.class_code}`;
+        'BASE_URL_BACKEND',
+      )}/classes/enrolled?code=${savedClass.class_code}`;
 
       return await this.classRepository.save(savedClass);
     } else {
@@ -120,8 +120,8 @@ export class ClassesService {
         to: memberDto.email,
         subject:
           memberDto.role === 'Student'
-            ? `Invitation to co-teach class "${curClass.name}"`
-            : `Invitation to join class:"${curClass.name}`,
+            ? `Invitation to join class "${curClass.name}"`
+            : `Invitation to co-teach class "${curClass.name}"`,
         template:
           memberDto.role === 'Student'
             ? './student-invitation-form'
@@ -150,7 +150,7 @@ export class ClassesService {
     });
 
     if (existedUser) {
-      if (!existedUser.student_id) {
+      if (memberDto.role === 'Student' && !existedUser.student_id) {
         return res.redirect(`http://localhost:3000/profile/empty-student-id`);
       }
       const newMember = this.classListRepository.create({
@@ -162,7 +162,11 @@ export class ClassesService {
       });
 
       await this.classListRepository.save(newMember);
-      return res.redirect(`http://localhost:3000/enrolled/${classId}/detail`);
+      return res.redirect(
+        `http://localhost:3000/${
+          memberDto.role == 'Student' ? 'enrolled' : 'teaching'
+        }/${classId}/detail`,
+      );
     } else {
       return res.redirect(`http://localhost:3000/auth`);
     }
@@ -178,6 +182,66 @@ export class ClassesService {
       return HttpStatus.OK;
     } else {
       throw new HttpException("Member doesn't exist", HttpStatus.CONFLICT);
+    }
+  }
+
+  async getAllEnrolledClasses(user_id: string): Promise<any> {
+    const allEnrolledClassesId = await this.classListRepository.find({
+      where: { user_id: user_id },
+    });
+
+    const allEnrolledClasses = await Promise.all(
+      allEnrolledClassesId.map(async (classList) => {
+        const curClass = await this.classRepository.findOne({
+          where: { _id: new ObjectId(classList.class_id) },
+        });
+
+        return [...allEnrolledClasses, curClass];
+      }),
+    );
+
+    return allEnrolledClasses;
+  }
+
+  async enrolledClass(
+    code: string,
+    user_id: string,
+    res: Response,
+  ): Promise<any> {
+    const curUser = await this.userRepository.findOne({
+      where: { _id: new ObjectId(user_id) },
+    });
+
+    if (curUser) {
+      if (!curUser.student_id) {
+        console.log('Empty student id', curUser);
+        return res.redirect(`http://localhost:3000/profile/empty-student-id`);
+      }
+
+      const curClass = await this.classRepository.findOne({
+        where: { class_code: code },
+      });
+      if (!curClass) {
+        throw new HttpException(
+          'Class code does not match any classes!',
+          HttpStatus.CONFLICT,
+        );
+      }
+      const newMember = this.classListRepository.create({
+        class_id: curClass._id.toString(),
+        user_id: curUser._id.toString(),
+        role: 'Student',
+        student_id: curUser.student_id,
+        email: curUser.email,
+      });
+      console.log('Enroll new class');
+      return await this.classListRepository.save(newMember);
+
+      // return res.redirect(
+      //   `http://localhost:3000/enrolled/${curClass._id}/detail`,
+      // );
+    } else {
+      return res.redirect(`http://localhost:3000/auth`);
     }
   }
 }

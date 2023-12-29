@@ -22,6 +22,7 @@ import { CreateClassDto } from './dto/create-class.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AddMemberDto } from './dto/add_member.dto';
 import { Response } from 'express';
+import { EnrollClassDto } from './dto/enroll-class.dto';
 
 @ApiTags('classes')
 @Controller('classes')
@@ -102,5 +103,27 @@ export class ClassesController {
     @Param('memberId') member_id: string,
   ) {
     return await this.classService.deleteMember(class_id, member_id);
+  }
+
+  @Get('enrolled')
+  @ApiOperation({ summary: 'Get all enrolled classes created by the host' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getAllEnrolledClasses(@Req() req: any) {
+    const user_id = req.user.id;
+    return this.classService.getAllEnrolledClasses(user_id);
+  }
+
+  @Post('enrolled')
+  @ApiOperation({ summary: 'Enrolled the class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async enrolledClass(
+    @Req() req: any,
+    @Query() code: EnrollClassDto,
+    @Res() res: Response,
+  ) {
+    const user_id = req.user.id;
+    return this.classService.enrolledClass(code.code, user_id, res);
   }
 }
