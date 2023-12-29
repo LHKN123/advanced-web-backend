@@ -118,12 +118,43 @@ export class ReviewService {
     });
   }
 
-  async getReviewComment(reviewId: string): Promise<any> {
-    const reviewList = await this.commentRepository.find({
+  async getReviewComment(senderId: string, reviewId: string): Promise<any> {
+    const commentList = await this.commentRepository.find({
       where: {
         review_id: reviewId,
       },
     });
-    return reviewList;
+
+    console.log('commentList', commentList);
+
+    let updatedCommentList = [];
+
+    commentList.forEach((comment) => {
+      updatedCommentList.push({
+        ...comment,
+        isSender: comment.sender_id === senderId,
+      });
+    });
+
+    console.log('updatedCommentList', commentList);
+
+    return updatedCommentList;
+  }
+
+  async deleteComment(commentId: string): Promise<any> {
+    const objectId = new ObjectId(commentId);
+
+    const existingComment = await this.commentRepository.findOne({
+      where: {
+        _id: objectId,
+      },
+    });
+
+    if (existingComment) {
+      await this.commentRepository.remove(existingComment);
+      return HttpStatus.OK;
+    } else {
+      throw new HttpException("Comment doesn't exist", HttpStatus.CONFLICT);
+    }
   }
 }
