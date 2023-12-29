@@ -45,7 +45,7 @@ export class ReviewController {
     return await this.reviewService.getAllReview(classId);
   }
 
-  @Get('/studentReviews')
+  @Get('/studentReviews/:classId/:studentId')
   @ApiOperation({ summary: 'Get student reviews with id in class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
@@ -74,7 +74,7 @@ export class ReviewController {
     return this.reviewService.updateComment(senderId, reqBody);
   }
 
-  @Get('/getComments')
+  @Get('/getComments/:classId')
   @ApiOperation({ summary: 'Get comments of review with id' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
