@@ -51,6 +51,7 @@ export class SocketioGateway
     this.logger.log('Websocket gateway initialized');
   }
 
+  // async handleConnection(client: Socket) {
   async handleConnection(client: SocketWithData) {
     try {
       const sockets = this.io.sockets;
@@ -80,18 +81,19 @@ export class SocketioGateway
       console.log(`Client with id ${client.id} connected`);
       console.log(`Number of connected sockets: ${sockets.size} connected`);
 
-      const roomNameList = [client.class_id, ...client.review_id_list];
-      await client.join(roomNameList);
+      // join all user classes and review id
+      // const roomNameList = [client.class_id, ...client.review_id_list];
+      // await client.join(roomNameList);
 
-      // log test
-      for (const roomName of roomNameList) {
-        const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
+      // // log test
+      // for (const roomName of roomNameList) {
+      //   const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
 
-        console.log(`userID: ${client.id} joined room with name: ${roomName}`);
-        console.log(
-          `Total clients connected to room '${roomName}': ${connectedClients}`,
-        );
-      }
+      //   console.log(`userID: ${client.id} joined room with name: ${roomName}`);
+      //   console.log(
+      //     `Total clients connected to room '${roomName}': ${connectedClients}`,
+      //   );
+      // }
     } catch (error) {
       console.error('Error handling connection:', error.message);
       client.disconnect(true);
@@ -123,6 +125,7 @@ export class SocketioGateway
   @SubscribeMessage('notify')
   @UseGuards(WsJwtAuthGuard)
   notify(
+    // @ConnectedSocket() client: Socket,
     @ConnectedSocket() client: SocketWithData,
     @MessageBody() message: any,
     @Req() req: any,
@@ -132,7 +135,10 @@ export class SocketioGateway
 
     // this.io.on('notify', (message) => {});
 
-    const roomNameList = [client.class_id, ...client.review_id_list];
-    this.io.to(roomNameList).emit('returnNotification', message);
+    // only notify target class or review
+    // const roomNameList = [client.class_id, ...client.review_id_list];
+    // this.io.to(roomNameList).emit('returnNotification', message);
+
+    this.io.emit('returnNotification', message);
   }
 }
