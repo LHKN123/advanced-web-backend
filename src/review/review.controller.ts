@@ -74,7 +74,7 @@ export class ReviewController {
     return this.reviewService.updateComment(senderId, reqBody);
   }
 
-  @Get('/getComments/:classId')
+  @Get('/getComments/:reviewId')
   @ApiOperation({ summary: 'Get comments of review with id' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))

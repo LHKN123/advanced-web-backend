@@ -18,7 +18,7 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Get('/list/:classId')
-  @ApiOperation({ summary: 'Get notification list' })
+  @ApiOperation({ summary: 'Get notification list of a user in class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getList(@Req() req: any, @Param('classId') classId: string) {
