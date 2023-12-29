@@ -17,14 +17,14 @@ export class NotificationService {
     const notificationList = [];
     const classNotificationList = await this.notificationRepository.find({
       where: {
-        class_id: classId,
+        classId: classId,
       },
     });
 
     console.log(classNotificationList);
 
     for (const notification of classNotificationList) {
-      const receiverIdList = notification.receiver_id_list;
+      const receiverIdList = notification.receiverIdList;
       for (const receiverId of receiverIdList) {
         if (receiverId === userId) {
           notificationList.push(notification);

@@ -20,18 +20,18 @@ export class ReviewService {
   async create(reviewDto: CreateReviewDto): Promise<any> {
     const existingReview = await this.reviewRepository.findOne({
       where: {
-        class_id: reviewDto.classId,
-        student_id: reviewDto.studentId,
-        grade_composition: reviewDto.gradeComposition,
+        classId: reviewDto.classId,
+        studentId: reviewDto.studentId,
+        gradeComposition: reviewDto.gradeComposition,
       },
     });
     if (!existingReview) {
       const newReview = this.reviewRepository.create({
-        class_id: reviewDto.classId,
-        student_id: reviewDto.studentId,
-        grade_composition: reviewDto.gradeComposition,
-        current_grade: reviewDto.currentGrade,
-        expectation_grade: reviewDto.expectationGrade,
+        classId: reviewDto.classId,
+        studentId: reviewDto.studentId,
+        gradeComposition: reviewDto.gradeComposition,
+        currentGrade: reviewDto.currentGrade,
+        expectationGrade: reviewDto.expectationGrade,
         explanation: reviewDto.explanation,
         status: reviewDto.status,
       });
@@ -45,9 +45,9 @@ export class ReviewService {
   async update(reviewDto: UpdateReviewDto) {
     const existingReview = await this.reviewRepository.findOne({
       where: {
-        class_id: reviewDto.classId,
-        student_id: reviewDto.studentId,
-        grade_composition: reviewDto.gradeComposition,
+        classId: reviewDto.classId,
+        studentId: reviewDto.studentId,
+        gradeComposition: reviewDto.gradeComposition,
       },
     });
     console.log('UPDATE', existingReview);
@@ -63,7 +63,7 @@ export class ReviewService {
   async getAllReview(classId: string): Promise<any> {
     const reviewList = await this.reviewRepository.find({
       where: {
-        class_id: classId,
+        classId: classId,
       },
     });
 
@@ -73,8 +73,8 @@ export class ReviewService {
   async getStudentReview(userId: string, classId: string): Promise<any> {
     const reviewList = await this.reviewRepository.find({
       where: {
-        class_id: classId,
-        student_id: userId,
+        classId: classId,
+        studentId: userId,
       },
     });
 

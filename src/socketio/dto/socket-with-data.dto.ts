@@ -3,36 +3,36 @@ import { Socket } from 'socket.io';
 
 export class NotificationDto {
   @IsNotEmpty()
-  class_id: string;
+  classId: string;
 
-  review_id: string;
-
-  @IsNotEmpty()
-  sender_id: string;
+  reviewId: string;
 
   @IsNotEmpty()
-  sender_role: string; //teacher/student
+  senderId: string;
 
   @IsNotEmpty()
-  receiver_id_list: string[];
+  senderRole: string; //teacher/student
+
+  @IsNotEmpty()
+  receiverIdList: string[];
 
   @IsNotEmpty()
   @MaxLength(256)
   message: string;
 
   @IsNotEmpty()
-  redirect_url: string;
+  redirectUrl: string;
 
   @IsNotEmpty()
-  created_at: string;
+  createdAt: string;
 
   @IsBoolean()
-  is_read: boolean;
+  isRead: boolean;
 }
 
 export class SocketDto {
   @IsNotEmpty()
-  class_id: string;
+  class_id_list: string[];
 
   review_id_list: string[];
 }

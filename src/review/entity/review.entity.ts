@@ -11,19 +11,19 @@ export class ReviewEntity {
   _id: ObjectIDType;
 
   @Column()
-  class_id: string;
+  classId: string;
 
   @Column()
-  student_id: string;
+  studentId: string;
 
   @Column()
-  grade_composition: string;
+  gradeComposition: string;
 
   @Column()
-  current_grade: string;
+  currentGrade: string;
 
   @Column()
-  expectation_grade: string;
+  expectationGrade: string;
 
   @Column()
   explanation: string;

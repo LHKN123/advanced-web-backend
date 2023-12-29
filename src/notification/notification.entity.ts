@@ -11,29 +11,29 @@ export class NotificationEntity {
   _id: ObjectIDType;
 
   @Column()
-  class_id: string;
+  classId: string;
 
   @Column({ nullable: true, default: null })
-  review_id: string;
+  reviewId: string;
 
   @Column()
-  sender_id: string;
+  senderId: string;
 
   @Column()
-  sender_role: string;
+  senderRole: string;
 
   @Column()
-  receiver_id_list: string[];
+  receiverIdList: string[];
 
   @Column()
   message: string;
 
   @Column()
-  redirect_url: string;
+  redirectUrl: string;
 
   @Column()
-  created_at: string;
+  createdAt: string;
 
   @Column()
-  is_read: boolean;
+  isRead: boolean;
 }
