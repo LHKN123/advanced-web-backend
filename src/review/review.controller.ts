@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Req,
@@ -36,12 +37,12 @@ export class ReviewController {
     return this.reviewService.update(reqBody);
   }
 
-  @Get('/allReviews')
+  @Get('/allReviews/:classId')
   @ApiOperation({ summary: 'Get all reviews in class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async getAllReview(@Body() reqBody: { classId: string }) {
-    return await this.reviewService.getAllReview(reqBody.classId);
+  async getAllReview(@Param('classId') classId: string) {
+    return await this.reviewService.getAllReview(classId);
   }
 
   @Get('/studentReviews')
@@ -49,12 +50,10 @@ export class ReviewController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getStudentReview(
-    @Body() reqBody: { classId: string; studentId: string },
+    @Param('classId') classId: string,
+    @Param('studentId') studentId: string,
   ) {
-    return await this.reviewService.getStudentReview(
-      reqBody.studentId,
-      reqBody.classId,
-    );
+    return await this.reviewService.getStudentReview(studentId, classId);
   }
 
   @Post('/createComment')
@@ -79,7 +78,7 @@ export class ReviewController {
   @ApiOperation({ summary: 'Get comments of review with id' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async getReviewComment(@Body() reqBody: { reviewId: string }) {
-    return await this.reviewService.getReviewComment(reqBody.reviewId);
+  async getReviewComment(@Param('reviewId') reviewId: string) {
+    return await this.reviewService.getReviewComment(reviewId);
   }
 }

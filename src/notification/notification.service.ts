@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { NotificationEntity } from './notification.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -35,16 +35,11 @@ export class NotificationService {
     return notificationList;
   }
 
-  async updateNotificationList(userId: string, newData: NotificationDto) {
+  async create(userId: string, newData: NotificationDto): Promise<any> {
     const newNotification = await this.notificationRepository.create(newData);
-
-    const savedNotification =
-      await this.notificationRepository.save(newNotification);
-
-    if (savedNotification) {
-      throw new HttpException('Fail to update', HttpStatus.CONFLICT);
-    } else {
-      return HttpStatus.OK;
-    }
+    return await this.notificationRepository.save({
+      ...newNotification,
+      sender_id: userId,
+    });
   }
 }
