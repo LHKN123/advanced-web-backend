@@ -6,9 +6,18 @@ import { UsersModule } from 'src/users/users.module';
 import { WsJwtAuthGuard } from './guard/ws-jwt.guard';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ReviewModule } from 'src/review/review.module';
+import { ClassesModule } from 'src/classes/classes.module';
 
 @Module({
-  imports: [forwardRef(() => AuthModule), UsersModule, ConfigModule, JwtModule],
+  imports: [
+    forwardRef(() => AuthModule),
+    UsersModule,
+    ConfigModule,
+    JwtModule,
+    ReviewModule,
+    ClassesModule,
+  ],
   providers: [SocketioGateway, WsJwtStrategy, WsJwtAuthGuard],
   exports: [SocketioGateway],
 })

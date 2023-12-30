@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ObjectId, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ReviewEntity } from './entity/review.entity';
 import { CommentEntity } from './entity/comment.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ReviewService {
@@ -50,7 +51,7 @@ export class ReviewService {
         gradeComposition: reviewDto.gradeComposition,
       },
     });
-    console.log('UPDATE', existingReview);
+    // console.log('UPDATE', existingReview);
     if (!existingReview) {
       throw new HttpException('Review not found', HttpStatus.NOT_FOUND);
     }
@@ -81,6 +82,42 @@ export class ReviewService {
     return reviewList;
   }
 
+  async getReviewIdListForTeacher(classId: string): Promise<any> {
+    const reviewList = await this.reviewRepository.find({
+      where: {
+        classId: classId,
+      },
+    });
+
+    let reviewIdList = [];
+
+    reviewList.forEach((element) => {
+      reviewIdList.push(element._id);
+    });
+
+    return reviewIdList;
+  }
+
+  async getReviewIdListForStudent(
+    studentId: string,
+    classId: string,
+  ): Promise<any> {
+    const reviewList = await this.reviewRepository.find({
+      where: {
+        classId: classId,
+        studentId: studentId,
+      },
+    });
+
+    let reviewIdList = [];
+
+    reviewList.forEach((element) => {
+      reviewIdList.push(element._id);
+    });
+
+    return reviewIdList;
+  }
+
   async createReviewComment(
     senderId: string,
     commentDto: CreateCommentDto,
@@ -98,16 +135,15 @@ export class ReviewService {
     return await this.commentRepository.save(newComment);
   }
 
-  async updateComment(senderId: string, commentDto: UpdateCommentDto) {
+  async updateComment(commentDto: UpdateCommentDto) {
     const objectId = new ObjectId(commentDto.id);
 
     const existingComment = await this.commentRepository.findOne({
       where: {
         _id: objectId,
-        // sender_id: senderId,
       },
     });
-    console.log('UPDATE', existingComment);
+    // console.log('UPDATE', existingComment);
     if (!existingComment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
@@ -125,8 +161,6 @@ export class ReviewService {
       },
     });
 
-    console.log('commentList', commentList);
-
     let updatedCommentList = [];
 
     commentList.forEach((comment) => {
@@ -135,8 +169,6 @@ export class ReviewService {
         isSender: comment.sender_id === senderId,
       });
     });
-
-    console.log('updatedCommentList', commentList);
 
     return updatedCommentList;
   }

@@ -1,4 +1,4 @@
-import { Inject, Logger, Req, UseGuards } from '@nestjs/common';
+import { Logger, Req, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -14,9 +14,19 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { WsJwtAuthGuard } from './guard/ws-jwt.guard';
 import { SocketWithData } from './dto/socket-with-data.dto';
+import { ClassesService } from 'src/classes/classes.service';
+import { ReviewService } from 'src/review/review.service';
+import { UsersService } from 'src/users/users.service';
 
 class tokenPayload {
   id: string;
+}
+
+class userData {
+  studentId: string;
+  enrolledClassesId: string[];
+  teachingClassesId: string[];
+  reviewIdList: string[];
 }
 
 // let configService: ConfigService;
@@ -38,21 +48,25 @@ export class SocketioGateway
 {
   private readonly logger = new Logger(SocketioGateway.name);
   constructor(
-    // for grade / class / review services
-    // private readonly classService: ClassService,
+    // for user / class / review services
+    private readonly usersService: UsersService,
+    private readonly classesService: ClassesService,
+    private readonly reviewService: ReviewService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
   @WebSocketServer() io: Namespace;
-  socketMap = new Map<string, tokenPayload>();
+
+  socketMap = new Map<string, string>();
+  dataMap = new Map<string, userData>();
 
   afterInit(): void {
     this.logger.log('Websocket gateway initialized');
   }
 
-  // async handleConnection(client: Socket) {
-  async handleConnection(client: SocketWithData) {
+  // async handleConnection(client: SocketWithData) {
+  async handleConnection(client: Socket) {
     try {
       const sockets = this.io.sockets;
 
@@ -76,14 +90,61 @@ export class SocketioGateway
         client.disconnect(true);
       }
 
-      this.socketMap.set(token, payload);
+      this.socketMap.set(token, payload.id);
 
       console.log(`Client with id ${client.id} connected`);
       console.log(`Number of connected sockets: ${sockets.size} connected`);
 
+      let userId = payload.id;
+
+      //TODO: use usersService
+      let studentId = '';
+
+      //get classes and reviews
+
+      //TODO: use classesService
+      let enrolledClassesId = [''];
+      let teachingClassesId = [''];
+
+      let reviewIdList = [];
+
+      if (studentId) {
+        enrolledClassesId.forEach((element) => {
+          async () => {
+            let temp = await this.reviewService.getReviewIdListForStudent(
+              studentId,
+              element,
+            );
+
+            reviewIdList = [...reviewIdList, ...temp];
+          };
+        });
+      }
+
+      teachingClassesId.forEach((element) => {
+        async () => {
+          let temp =
+            await this.reviewService.getReviewIdListForTeacher(element);
+
+          reviewIdList = [...reviewIdList, ...temp];
+        };
+      });
+
+      let myUserData = {
+        studentId: studentId,
+        enrolledClassesId: enrolledClassesId,
+        teachingClassesId: teachingClassesId,
+        reviewIdList: reviewIdList,
+      };
+      this.dataMap.set(userId, myUserData);
+
       // join all user classes and review id
-      // const roomNameList = [client.class_id, ...client.review_id_list];
-      // await client.join(roomNameList);
+      const roomNameList = [
+        ...enrolledClassesId,
+        ...teachingClassesId,
+        ...reviewIdList,
+      ];
+      await client.join(roomNameList);
 
       // // log test
       // for (const roomName of roomNameList) {
@@ -111,8 +172,7 @@ export class SocketioGateway
   @SubscribeMessage('newMessage')
   @UseGuards(WsJwtAuthGuard)
   sendMessage(
-    // @ConnectedSocket() client: Socket,
-    @ConnectedSocket() client: SocketWithData,
+    @ConnectedSocket() client: Socket,
     @MessageBody() message: any,
     @Req() req: any,
   ) {
@@ -125,20 +185,27 @@ export class SocketioGateway
   @SubscribeMessage('notify')
   @UseGuards(WsJwtAuthGuard)
   notify(
-    // @ConnectedSocket() client: Socket,
-    @ConnectedSocket() client: SocketWithData,
-    @MessageBody() message: any,
+    // @ConnectedSocket() client: SocketWithData,
+    @ConnectedSocket() client: Socket,
+    @MessageBody() message: any, //{value: string, room: string}
     @Req() req: any,
   ) {
     console.log('req user', req.user);
     console.log('req', req);
 
-    // this.io.on('notify', (message) => {});
+    // let token = client.handshake.auth.token;
+    // let userId = this.socketMap.get(token);
+
+    this.io.on('notify', (message) => {});
 
     // only notify target class or review
-    // const roomNameList = [client.class_id, ...client.review_id_list];
-    // this.io.to(roomNameList).emit('returnNotification', message);
+    // const target = message.room;
+    // this.io.to(target).emit('returnNotification', message);
 
     this.io.emit('returnNotification', message);
+
+    // alternative way: notify everyone
+    // const roomNameList = [client.class_id_list, ...client.review_id_list];
+    // this.io.to(roomNameList).emit('returnNotification', message);
   }
 }

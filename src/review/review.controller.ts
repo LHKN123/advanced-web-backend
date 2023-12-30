@@ -70,9 +70,8 @@ export class ReviewController {
   @ApiOperation({ summary: 'Update comment' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async updateComment(@Req() req: any, @Body() reqBody: UpdateCommentDto) {
-    const senderId = req.user.id;
-    return this.reviewService.updateComment(senderId, reqBody);
+  async updateComment(@Body() reqBody: UpdateCommentDto) {
+    return this.reviewService.updateComment(reqBody);
   }
 
   @Delete('/deleteComment/:commentId')
