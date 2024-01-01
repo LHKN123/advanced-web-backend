@@ -15,6 +15,10 @@ import { NotificationModule } from './notification/notification.module';
 import { ReviewModule } from './review/review.module';
 import { RubricModule } from './rubric/rubric.module';
 import { GradeModule } from './grade/grade.module';
+import { AwsModule } from './aws/aws.module';
+import { MulterConfigModule } from './multer/multer.module';
+import { DownloadModule } from './download/download.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,14 +41,17 @@ import { GradeModule } from './grade/grade.module';
     UsersModule,
     MinioClientModule,
     UploadModule,
+    DownloadModule,
     SocketioModule,
     ClassesModule,
     NotificationModule,
     ReviewModule,
     RubricModule,
     GradeModule,
+    AwsModule,
+    MulterConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

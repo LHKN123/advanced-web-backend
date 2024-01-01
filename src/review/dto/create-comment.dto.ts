@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCommentDto {
   @IsNotEmpty() review_id: string;
@@ -7,8 +7,10 @@ export class CreateCommentDto {
 
   @IsNotEmpty() desc: string;
 
+  @IsOptional()
   parent: string;
 
+  @IsOptional()
   replyOnUser: string;
 
   @IsNotEmpty() createdAt: string;

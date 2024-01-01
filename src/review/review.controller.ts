@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -69,16 +70,24 @@ export class ReviewController {
   @ApiOperation({ summary: 'Update comment' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async updateComment(@Req() req: any, @Body() reqBody: UpdateCommentDto) {
-    const senderId = req.user.id;
-    return this.reviewService.updateComment(senderId, reqBody);
+  async updateComment(@Body() reqBody: UpdateCommentDto) {
+    return this.reviewService.updateComment(reqBody);
   }
 
-  @Get('/getComments/:classId')
+  @Delete('/deleteComment/:commentId')
+  @ApiOperation({ summary: 'Delete a comment' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async deleteComment(@Param('commentId') commentId: string) {
+    return await this.reviewService.deleteComment(commentId);
+  }
+
+  @Get('/getComments/:reviewId')
   @ApiOperation({ summary: 'Get comments of review with id' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async getReviewComment(@Param('reviewId') reviewId: string) {
-    return await this.reviewService.getReviewComment(reviewId);
+  async getReviewComment(@Req() req: any, @Param('reviewId') reviewId: string) {
+    const senderId = req.user.id;
+    return await this.reviewService.getReviewComment(senderId, reviewId);
   }
 }

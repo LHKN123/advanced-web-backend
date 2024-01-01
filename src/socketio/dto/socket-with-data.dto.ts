@@ -1,14 +1,12 @@
-import { IsBoolean, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 import { Socket } from 'socket.io';
 
 export class NotificationDto {
   @IsNotEmpty()
   classId: string;
 
+  @IsOptional()
   reviewId: string;
-
-  @IsNotEmpty()
-  senderId: string;
 
   @IsNotEmpty()
   senderRole: string; //teacher/student
@@ -34,6 +32,7 @@ export class SocketDto {
   @IsNotEmpty()
   class_id_list: string[];
 
+  @IsOptional()
   review_id_list: string[];
 }
 

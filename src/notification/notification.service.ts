@@ -12,16 +12,13 @@ export class NotificationService {
   ) {}
 
   async getNotificationList(userId: string, classId: string): Promise<any> {
-    // Promise<NotificationEntity[]>  ???
-
+    // Promise<NotificationEntity[]>
     const notificationList = [];
     const classNotificationList = await this.notificationRepository.find({
       where: {
         classId: classId,
       },
     });
-
-    console.log(classNotificationList);
 
     for (const notification of classNotificationList) {
       const receiverIdList = notification.receiverIdList;
@@ -39,7 +36,7 @@ export class NotificationService {
     const newNotification = await this.notificationRepository.create(newData);
     return await this.notificationRepository.save({
       ...newNotification,
-      sender_id: userId,
+      senderId: userId,
     });
   }
 }
