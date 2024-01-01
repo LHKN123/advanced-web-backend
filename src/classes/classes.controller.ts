@@ -140,10 +140,9 @@ export class ClassesController {
   @UseGuards(AuthGuard('jwt'))
   async enrolledClass(
     @Req() req: any,
-    @Query() code: EnrollClassDto,
-    @Res() res: Response,
+    @Query() code: EnrollClassDto
   ) {
     const user_id = req.user.id;
-    return this.classService.enrolledClass(code.code, user_id, res);
+    return this.classService.enrolledClass(code.code, user_id);
   }
 }

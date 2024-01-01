@@ -237,10 +237,56 @@ export class ClassesService {
     return allEnrolledClasses;
   }
 
+  // async enrolledClass(
+  //   code: string,
+  //   user_id: string,
+  //   res: Response,
+  // ): Promise<any> {
+  //   const curUser = await this.userRepository.findOne({
+  //     where: { _id: new ObjectId(user_id) },
+  //   });
+
+  //   if (curUser) {
+  //     if (!curUser.student_id) {
+  //       console.log('Empty student id', curUser);
+  //       return res.redirect(`http://localhost:3000/profile/empty-student-id`);
+  //     }
+
+  //     const curClass = await this.classRepository.findOne({
+  //       where: { class_code: code },
+  //     });
+  //     if (!curClass) {
+  //       throw new HttpException(
+  //         'Class code does not match any classes!',
+  //         HttpStatus.CONFLICT,
+  //       );
+  //     }
+  //     const newMember = this.classListRepository.create({
+  //       class_id: curClass._id.toString(),
+  //       user_id: curUser._id.toString(),
+  //       role: 'Student',
+  //       student_id: curUser.student_id,
+  //       email: curUser.email,
+  //     });
+  //     console.log('Enroll new class');
+  //     const createdMember = await this.classListRepository.save(newMember);
+  //     if (createdMember) {
+  //       console.log(createdMember);
+  //       return curClass;
+  //     } else {
+  //       throw new HttpException("Can't join the class!", HttpStatus.CONFLICT);
+  //     }
+
+  //     // return res.redirect(
+  //     //   `http://localhost:3000/enrolled/${curClass._id}/detail`,
+  //     // );
+  //   } else {
+  //     return res.redirect(`http://localhost:3000/auth`);
+  //   }
+  // }
   async enrolledClass(
     code: string,
     user_id: string,
-    res: Response,
   ): Promise<any> {
     const curUser = await this.userRepository.findOne({
       where: { _id: new ObjectId(user_id) },
@@ -249,18 +295,32 @@ export class ClassesService {
     if (curUser) {
       if (!curUser.student_id) {
         console.log('Empty student id', curUser);
-        return res.redirect(`http://localhost:3000/profile/empty-student-id`);
+        // Instead of redirecting, you can throw an exception or return an error response.
+        throw new HttpException(
+          'User does not have a student ID',
+          HttpStatus.CONFLICT,
+        );
       }
 
       const curClass = await this.classRepository.findOne({
         where: { class_code: code },
       });
+
       if (!curClass) {
         throw new HttpException(
           'Class code does not match any classes!',
           HttpStatus.CONFLICT,
         );
       }
+
+      const existingClass = await this.classListRepository.findOne({
+        where: { class_id: curClass._id.toString(), user_id: curUser._id.toString() },
+      });
+
+      if (existingClass) {
+        throw new HttpException("You've already enrolled the class", HttpStatus.CONFLICT);
+      }
+
       const newMember = this.classListRepository.create({
         class_id: curClass._id.toString(),
         user_id: curUser._id.toString(),
@@ -268,20 +328,19 @@ export class ClassesService {
         student_id: curUser.student_id,
         email: curUser.email,
       });
+
       console.log('Enroll new class');
       const createdMember = await this.classListRepository.save(newMember);
+
       if (createdMember) {
         console.log(createdMember);
         return curClass;
       } else {
         throw new HttpException("Can't join the class!", HttpStatus.CONFLICT);
       }
-
-      // return res.redirect(
-      //   `http://localhost:3000/enrolled/${curClass._id}/detail`,
-      // );
     } else {
-      return res.redirect(`http://localhost:3000/auth`);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
   }
+
 }
