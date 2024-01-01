@@ -24,4 +24,10 @@ export class ClassListEntity {
 
   @Column()
   email: string;
+
+  @Column()
+  fullName: string;
+
+  @Column()
+  avatar_url: string;
 }

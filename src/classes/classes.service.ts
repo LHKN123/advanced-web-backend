@@ -25,7 +25,7 @@ export class ClassesService {
     @InjectRepository(ClassListEntity)
     private classListRepository: Repository<ClassListEntity>,
     private readonly mailerService: MailerService,
-  ) {}
+  ) { }
 
   async create(classDto: CreateClassDto, host_id: string): Promise<any> {
     const existingClass = await this.classRepository.findOne({
@@ -53,10 +53,42 @@ export class ClassesService {
     }
   }
 
-  async getAllClasses(host_id: string): Promise<any> {
+  async getAllTeachingClasses(host_id: string): Promise<any> {
     const allClasses = await this.classRepository.find({
       where: { host_id: host_id },
     });
+
+    return allClasses;
+  }
+
+  async getClassStudentInfo(user_id: string, class_id: string): Promise<any> {
+    const classInfo = await this.classListRepository.findOne({
+      where: { user_id: user_id, class_id: class_id },
+    });
+
+    return classInfo;
+  }
+
+  async getAllClasses(host_id: string): Promise<any> {
+    const teachingClasses = await this.getAllTeachingClasses(host_id);
+    const teachingClassList = await Promise.all(
+      teachingClasses.map(async (member) => {
+        return {
+          ...member,
+          type: "teaching"
+        };
+      }),
+    );
+    const enrolledClasses = await this.getAllEnrolledClasses(host_id);
+    const enrolledClassList = await Promise.all(
+      enrolledClasses.map(async (member) => {
+        return {
+          ...member,
+          type: "enrolled"
+        };
+      }),
+    );
+    const allClasses = [...teachingClassList, ...enrolledClassList];
 
     return allClasses;
   }
@@ -82,20 +114,20 @@ export class ClassesService {
       where: { _id: new ObjectId(curClass.host_id) },
     });
 
-    const members = await Promise.all(
-      classList.map(async (member) => {
-        const user = await this.userRepository.findOne({
-          where: { _id: new ObjectId(member.user_id) },
-        });
+    // const members = await Promise.all(
+    //   classList.map(async (member) => {
+    //     const user = await this.userRepository.findOne({
+    //       where: { _id: new ObjectId(member.user_id) },
+    //     });
 
-        return {
-          ...member,
-          avatar_url: user?.avatarUrl,
-          fullName: user?.username,
-        }; // Use optional chaining to avoid errors if user is null
-      }),
-    );
-    return { host_user: host_user, members: members };
+    //     return {
+    //       ...member,
+    //       avatar_url: user?.avatarUrl,
+    //       fullName: user?.username,
+    //     }; // Use optional chaining to avoid errors if user is null
+    //   }),
+    // );
+    return { host_user: host_user, members: classList };
   }
 
   async inviteMember(
@@ -159,12 +191,13 @@ export class ClassesService {
         role: memberDto.role,
         student_id: existedUser.student_id,
         email: memberDto.email,
+        fullName: "LTT",
+        avatar_url: existedUser.avatarUrl
       });
 
       await this.classListRepository.save(newMember);
       return res.redirect(
-        `http://localhost:3000/${
-          memberDto.role == 'Student' ? 'enrolled' : 'teaching'
+        `http://localhost:3000/${memberDto.role == 'Student' ? 'enrolled' : 'teaching'
         }/${classId}/detail`,
       );
     } else {
