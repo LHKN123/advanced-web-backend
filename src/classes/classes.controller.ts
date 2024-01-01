@@ -111,6 +111,7 @@ export class ClassesController {
   @UseGuards(AuthGuard('jwt'))
   async getAllEnrolledClasses(@Req() req: any) {
     const user_id = req.user.id;
+    console.log('Getting', user_id);
     return this.classService.getAllEnrolledClasses(user_id);
   }
 

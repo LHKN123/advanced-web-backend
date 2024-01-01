@@ -235,7 +235,13 @@ export class ClassesService {
         email: curUser.email,
       });
       console.log('Enroll new class');
-      return await this.classListRepository.save(newMember);
+      const createdMember = await this.classListRepository.save(newMember);
+      if (createdMember) {
+        console.log(createdMember);
+        return curClass;
+      } else {
+        throw new HttpException("Can't join the class!", HttpStatus.CONFLICT);
+      }
 
       // return res.redirect(
       //   `http://localhost:3000/enrolled/${curClass._id}/detail`,
