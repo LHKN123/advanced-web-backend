@@ -36,6 +36,7 @@ import { ReturnUserDto } from './dto/return_user.dto';
 import { ConfigService } from '@nestjs/config';
 import { StringDecoder } from 'string_decoder';
 import { AuthGuard } from '@nestjs/passport';
+import { BanUserDto } from './dto/ban-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,7 +44,13 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private configService: ConfigService,
-  ) {}
+  ) { }
+
+  @Post('ban')
+  @ApiOperation({ summary: 'Restricted or unrestricted account' })
+  async banUser(@Body() reqBody: BanUserDto) {
+    return this.authService.banUser(reqBody);
+  }
 
   @Post('register')
   @ApiOperation({ summary: 'Create new account' })
@@ -107,7 +114,7 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  async googleLogin(@Req() _req) {}
+  async googleLogin(@Req() _req) { }
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)

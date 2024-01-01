@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-  ) {}
+  ) { }
 
   async findByEmail(email: string): Promise<UserEntity | undefined> {
     const user = await this.userRepository.findOne({ where: { email } });
@@ -69,19 +69,8 @@ export class UsersService {
     return user;
   }
 
-  // async getUser(userId: string): Promise<any> {
-  //   //const user = this.getUserById(userId);
-  //   const user = await this.userRepository.findOne({
-  //     where: { _id: new ObjectId(userId) },
-  //   });
-  //   const payload = { id: new ObjectId(userId) };
-  //   const { access_token, refresh_token } =
-  //     await this.authService.generateToken(payload, user.email);
-  //   return {
-  //     email: user.email,
-  //     username: user.username,
-  //     access_token,
-  //     refresh_token,
-  //   };
-  // }
+  async getAllUsers(): Promise<UserEntity[]> {
+    const users = await this.userRepository.find();
+    return users;
+  }
 }
