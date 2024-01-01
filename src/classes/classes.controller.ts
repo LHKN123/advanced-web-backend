@@ -27,7 +27,7 @@ import { EnrollClassDto } from './dto/enroll-class.dto';
 @ApiTags('classes')
 @Controller('classes')
 export class ClassesController {
-  constructor(private readonly classService: ClassesService) {}
+  constructor(private readonly classService: ClassesService) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create new class' })
@@ -38,8 +38,26 @@ export class ClassesController {
     return this.classService.create(reqBody, host_id);
   }
 
+  @Get('teaching')
+  @ApiOperation({ summary: 'Get all created classes by user' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getTeachingClasses(@Req() req: any) {
+    const host_id = req.user.id;
+    return this.classService.getAllTeachingClasses(host_id);
+  }
+
+  @Get('class-student/:classId')
+  @ApiOperation({ summary: 'Get specific class info that the user(student) enrolled' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getClassStudent(@Req() req: any, @Param('classId') classId: string) {
+    const user_id = req.user.id;
+    return this.classService.getClassStudentInfo(user_id, classId);
+  }
+
   @Get('')
-  @ApiOperation({ summary: 'Get all classes created by the host' })
+  @ApiOperation({ summary: 'Get all classes (enrolled + teaching) by user' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getAllClasses(@Req() req: any) {

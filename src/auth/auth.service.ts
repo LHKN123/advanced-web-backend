@@ -92,7 +92,7 @@ export class AuthService {
       username: user.username,
       access_token,
       refresh_token,
-      student_id: user.student_id,
+      studentId: user.student_id,
     };
   }
 
