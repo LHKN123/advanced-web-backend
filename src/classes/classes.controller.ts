@@ -105,11 +105,12 @@ export class ClassesController {
     return await this.classService.deleteMember(class_id, member_id);
   }
 
-  @Get('enrolled')
+  @Post('get-enrolled')
   @ApiOperation({ summary: 'Get all enrolled classes created by the host' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getAllEnrolledClasses(@Req() req: any) {
+    console.log('REquesst', req);
     const user_id = req.user.id;
     console.log('Getting', user_id);
     return this.classService.getAllEnrolledClasses(user_id);

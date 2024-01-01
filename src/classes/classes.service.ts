@@ -186,6 +186,7 @@ export class ClassesService {
   }
 
   async getAllEnrolledClasses(user_id: string): Promise<any> {
+    console.log('getAllEnrolledClasses', user_id);
     const allEnrolledClassesId = await this.classListRepository.find({
       where: { user_id: user_id },
     });
@@ -196,7 +197,7 @@ export class ClassesService {
           where: { _id: new ObjectId(classList.class_id) },
         });
 
-        return [...allEnrolledClasses, curClass];
+        return curClass;
       }),
     );
 
