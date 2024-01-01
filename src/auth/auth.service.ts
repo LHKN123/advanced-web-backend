@@ -18,6 +18,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { RecoveryPasswordDto } from './dto/recovery-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { BanUserDto } from './dto/ban-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,6 +37,28 @@ export class AuthService {
       return user;
     }
     return null;
+  }
+
+  async banUser(banUser: BanUserDto): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { email: banUser.email },
+    });
+
+    if (!user) {
+      throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
+    }
+
+    const payload = { id: user._id };
+    const { access_token, refresh_token } = await this.generateToken(
+      payload,
+      user.email,
+    );
+
+    return {
+      ...user, status: banUser.status,
+      access_token: access_token,
+      refresh_token: refresh_token
+    };
   }
 
   async login(loginUserDto: LoginUserDto): Promise<any> {
@@ -72,6 +95,7 @@ export class AuthService {
       studentId: user.student_id,
     };
   }
+
   async loginAdmin(loginUserDto: LoginUserDto): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },

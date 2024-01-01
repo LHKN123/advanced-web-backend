@@ -21,7 +21,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 @ApiTags('profile')
 @Controller('profile')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Put('update')
   @ApiOperation({ summary: 'Update profile info' })
@@ -36,6 +36,13 @@ export class UsersController {
     );
   }
 
+  @Get('')
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getAllUsers(@Req() req: any) {
+    return this.usersService.getAllUsers();
+  }
   // @Get('user')
   // @ApiOperation({ summary: 'Update profile info' })
   // @ApiBearerAuth('access-token')
