@@ -28,7 +28,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private readonly mailerService: MailerService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
@@ -69,6 +69,7 @@ export class AuthService {
       username: user.username,
       access_token,
       refresh_token,
+      student_id: user.student_id,
     };
   }
   async loginAdmin(loginUserDto: LoginUserDto): Promise<any> {
@@ -101,7 +102,7 @@ export class AuthService {
       payload,
       user.email,
     );
-    return { access_token, refresh_token, ...user};
+    return { access_token, refresh_token, ...user };
   }
 
   async refreshToken(refresh_token: string): Promise<any> {
@@ -214,14 +215,14 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { email: reqBody.email },
     });
-    
+
     if (!user) {
       throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
-    }    
+    }
 
     // Use a dedicated service for handling emails (nodemailer)
     this.sendVerifyAccountEmail(reqBody)
-      
+
     // Return an appropriate response
     return HttpStatus.OK;
   }
