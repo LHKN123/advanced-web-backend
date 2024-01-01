@@ -11,11 +11,11 @@ export class GradeEntity {
   _id: ObjectIDType;
 
   @Column()
-  student_id: string;
+  studentId: string;
 
   @Column()
-  rubric_id: string;
+  rubricId: string;
 
-  @Column('decimal', { scale: 2 })
+  @Column('decimal', { scale: 3 })
   grade: number;
 }
