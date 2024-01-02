@@ -61,11 +61,13 @@ export class ClassesService {
     const teachingClassList = await Promise.all(
       allClasses.map(async (_class) => {
         const member_number = await this.getMemberNumberInClass(_class._id.toString())
-        return {
+
+        const result = {
           ..._class,
           student_number: member_number.students,
           teacher_number: member_number.teachers
         };
+        return result;
       }),
     );
 
@@ -84,7 +86,7 @@ export class ClassesService {
     const teachingClasses = await this.getAllTeachingClasses(host_id);
     const teachingClassList = await Promise.all(
       teachingClasses.map(async (_class) => {
-        const member_number = await this.getMemberNumberInClass(_class._id)
+        const member_number = await this.getMemberNumberInClass(_class._id.toString())
         return {
           ..._class,
           type: "teaching",
@@ -97,7 +99,7 @@ export class ClassesService {
     const enrolledClasses = await this.getAllEnrolledClasses(host_id);
     const enrolledClassList = await Promise.all(
       enrolledClasses.map(async (_class) => {
-        const member_number = await this.getMemberNumberInClass(_class._id)
+        const member_number = await this.getMemberNumberInClass(_class._id.toString());
         return {
           ..._class,
           type: "enrolled",
@@ -262,7 +264,6 @@ export class ClassesService {
 
     if (curUser) {
       if (!curUser.student_id) {
-        console.log('Empty student id', curUser);
         // Instead of redirecting, you can throw an exception or return an error response.
         throw new HttpException(
           'User does not have a student ID',
@@ -297,11 +298,9 @@ export class ClassesService {
         email: curUser.email,
       });
 
-      console.log('Enroll new class');
       const createdMember = await this.classListRepository.save(newMember);
 
       if (createdMember) {
-        console.log(createdMember);
         return curClass;
       } else {
         throw new HttpException("Can't join the class!", HttpStatus.CONFLICT);
@@ -316,16 +315,16 @@ export class ClassesService {
       where: { class_id: class_id, role: "Student" }
     });
 
-    console.log("Student number", students.length);
 
     const teachers = await this.classListRepository.find({
       where: { class_id: class_id, role: "Teacher" }
     });
 
-    return {
+    const result = {
       "students": students.length,
       "teachers": teachers.length + 1
     }
+    return result;
   }
 
 }

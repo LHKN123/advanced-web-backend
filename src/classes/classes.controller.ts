@@ -145,4 +145,16 @@ export class ClassesController {
     const user_id = req.user.id;
     return this.classService.enrolledClass(code.code, user_id);
   }
+
+  @Get('getnumber/:classId')
+  @ApiOperation({ summary: 'Enrolled the class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getmember(
+    @Req() req: any,
+    @Param('classId') class_id: string
+  ) {
+    const user_id = req.user.id;
+    return this.classService.getMemberNumberInClass(class_id);
+  }
 }
