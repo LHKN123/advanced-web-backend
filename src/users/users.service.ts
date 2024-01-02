@@ -69,7 +69,7 @@ export class UsersService {
     return user;
   }
 
-  async getAllUsers(): Promise<UserEntity[]> {
+  async getAllUsers(): Promise<any> {
     const users = await this.userRepository.find();
     return users;
   }

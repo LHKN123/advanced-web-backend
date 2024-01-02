@@ -309,7 +309,7 @@ export class ClassesService {
       if (!curClass) {
         throw new HttpException(
           'Class code does not match any classes!',
-          HttpStatus.CONFLICT,
+          HttpStatus.NOT_FOUND,
         );
       }
 
