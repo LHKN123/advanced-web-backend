@@ -12,4 +12,7 @@ export class UpdateReviewDto {
 
   @IsNotEmpty()
   status: string;
+
+  @IsNotEmpty()
+  currentGrade: string;
 }
