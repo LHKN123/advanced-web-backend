@@ -16,7 +16,7 @@ export class ReviewService {
     private reviewRepository: Repository<ReviewEntity>,
     @InjectRepository(CommentEntity)
     private commentRepository: Repository<CommentEntity>,
-  ) {}
+  ) { }
 
   async create(reviewDto: CreateReviewDto): Promise<any> {
     const existingReview = await this.reviewRepository.findOne({
@@ -51,7 +51,6 @@ export class ReviewService {
         gradeComposition: reviewDto.gradeComposition,
       },
     });
-    // console.log('UPDATE', existingReview);
     if (!existingReview) {
       throw new HttpException('Review not found', HttpStatus.NOT_FOUND);
     }
@@ -146,7 +145,6 @@ export class ReviewService {
         _id: objectId,
       },
     });
-    // console.log('UPDATE', existingComment);
     if (!existingComment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
