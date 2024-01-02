@@ -49,7 +49,6 @@ export class ReviewService {
         classId: reviewDto.classId,
         studentId: reviewDto.studentId,
         gradeComposition: reviewDto.gradeComposition,
-        currentGrade: reviewDto.currentGrade,
       },
     });
     // console.log('UPDATE', existingReview);
@@ -59,6 +58,7 @@ export class ReviewService {
     return this.reviewRepository.save({
       ...existingReview,
       status: reviewDto.status,
+      currentGrade: reviewDto.currentGrade,
     });
   }
 
@@ -83,6 +83,7 @@ export class ReviewService {
     return reviewList;
   }
 
+  // REVISE LATER
   async getReviewIdListForTeacher(classId: string): Promise<any> {
     const reviewList = await this.reviewRepository.find({
       where: {
@@ -118,6 +119,7 @@ export class ReviewService {
 
     return reviewIdList;
   }
+  // REVISE LATER
 
   async createReviewComment(
     senderId: string,
