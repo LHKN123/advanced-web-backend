@@ -49,6 +49,7 @@ export class ReviewService {
         classId: reviewDto.classId,
         studentId: reviewDto.studentId,
         gradeComposition: reviewDto.gradeComposition,
+        currentGrade: reviewDto.currentGrade,
       },
     });
     // console.log('UPDATE', existingReview);

@@ -187,7 +187,7 @@ export class SocketioGateway
   notify(
     // @ConnectedSocket() client: SocketWithData,
     @ConnectedSocket() client: Socket,
-    @MessageBody() message: any, //{value: string, room: string}
+    @MessageBody() message: { value: string; room: string },
     @Req() req: any,
   ) {
     console.log('req user', req.user);
@@ -198,11 +198,13 @@ export class SocketioGateway
 
     this.io.on('notify', (message) => {});
 
+    // TODO:
     // only notify target class or review
-    // const target = message.room;
-    // this.io.to(target).emit('returnNotification', message);
+    const target = message.room;
+    this.io.to(target).emit('returnNotification', message.value);
 
-    this.io.emit('returnNotification', message);
+    //for testing only
+    // this.io.emit('returnNotification', message.value);
 
     // alternative way: notify everyone
     // const roomNameList = [client.class_id_list, ...client.review_id_list];
