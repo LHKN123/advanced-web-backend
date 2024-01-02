@@ -312,17 +312,19 @@ export class ClassesService {
   }
 
   async getMemberNumberInClass(class_id: string): Promise<any> {
-    const student_number = await this.classListRepository.count({
-      where: { _id: new ObjectId(class_id), role: "Student" }
+    const students = await this.classListRepository.find({
+      where: { class_id: class_id, role: "Student" }
     });
 
-    const teacher_number = await this.classListRepository.count({
-      where: { _id: new ObjectId(class_id), role: "Teacher" }
+    console.log("Student number", students.length);
+
+    const teachers = await this.classListRepository.find({
+      where: { class_id: class_id, role: "Teacher" }
     });
 
     return {
-      "students": student_number,
-      "teachers": teacher_number + 1
+      "students": students.length,
+      "teachers": teachers.length + 1
     }
   }
 
