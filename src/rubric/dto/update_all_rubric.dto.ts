@@ -1,13 +1,22 @@
-import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
+import { Type, classToPlain } from 'class-transformer';
+import { ArrayMinSize, IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 import { RubricEntity } from '../rubric.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 
+export class Rubric {
+  _id: string;
+  class_id: string;
+  gradeName: string;
+  gradeScale: number;
+  order: number;
+}
 export class UpdateAllRubricDto {
   @IsArray()
   @IsNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => RubricEntity)
+  // @Type(() => RubricEntity)
+  @ArrayMinSize(1)
   @ApiHideProperty()
   rubrics: RubricEntity[];
+
+
 }
