@@ -119,9 +119,9 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
-    // const auth = await this.authService.signInSocialLogin(req.user);
-    // return this.sendResponseSocialLogin(res, auth);
-    console.log('social');
+    const auth = await this.authService.signInSocialLogin(req.user);
+    return this.sendResponseSocialLogin(res, auth);
+
   }
 
   @Get('/facebook')
@@ -139,33 +139,35 @@ export class AuthController {
   //   return this.sendResponseSocialLogin(res, auth);
   // }
 
-  // async sendResponseSocialLogin(
-  //   res: Response,
-  //   auth: { access_token: string; refresh_token: string },
-  // ) {
-  //   const successRedirectUrl = (auth) =>
-  //     `${this.configService.get<string>(
-  //       'BASE_URL_FRONTEND',
-  //     )}/auth/oauth-success-redirect?code=${auth.access_token}`;
+  async sendResponseSocialLogin(
+    res: Response,
+    auth: { access_token: string; refresh_token: string },
+  ) {
+    // const successRedirectUrl = (auth) =>
+    //   `${this.configService.get<string>(
+    //     'BASE_URL_FRONTEND',
+    //   )}/auth/oauth-success-redirect?code=${auth.access_token}`;
+    const successRedirectUrl = (auth) =>
+      `${this.configService.get<string>(
+        'BASE_URL_FRONTEND',
+      )}/auth/oauth-success-redirect?code=${auth.access_token}`;
 
-  //   try {
-  //     const refreshTokenCookie = this.authService.getCookieRefreshToken(
-  //       auth.refresh_token,
-  //     );
-  //     res.setHeader('Set-Cookie', refreshTokenCookie);
-
-  //     return res.redirect(successRedirectUrl(auth));
-  //   } catch (error) {
-  //     return res.redirect(
-  //       `${this.configService.get<string>('BASE_URL_FRONTEND')}/auth?error=${
-  //         error.message
-  //       }`,
-  //     );
-  //   }
-  // }
+    try {
+      const refreshTokenCookie = this.authService.getCookieRefreshToken(
+        auth.refresh_token,
+      );
+      res.setHeader('Set-Cookie', refreshTokenCookie);
+      return res.redirect(successRedirectUrl(auth));
+    } catch (error) {
+      return res.redirect(
+        `${this.configService.get<string>('BASE_URL_FRONTEND')}/auth?error=${error.message
+        }`,
+      );
+    }
+  }
 
   @Get('user')
-  // @ApiOperation({ summary: 'Update profile info' })
+  @ApiOperation({ summary: 'Get profile info' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getUser(@Req() req: any) {
