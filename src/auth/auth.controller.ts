@@ -119,6 +119,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
+    console.log('google', req.user);
     const auth = await this.authService.signInSocialLogin(req.user);
     return this.sendResponseSocialLogin(res, auth);
 

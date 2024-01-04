@@ -98,12 +98,14 @@ export class AuthService {
       user.email,
     );
     return {
-      id: user._id,
       email: user.email,
       username: user.username,
       access_token,
       refresh_token,
       studentId: user.student_id,
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+      status: user.status
     };
   }
 
@@ -144,7 +146,16 @@ export class AuthService {
       payload,
       user.email,
     );
-    return { access_token, refresh_token, ...user };
+    return {
+      email: user.email,
+      username: user.username,
+      access_token,
+      refresh_token,
+      studentId: user.student_id,
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+      status: user.status
+    };
   }
 
   async refreshToken(refresh_token: string): Promise<any> {
@@ -304,21 +315,21 @@ export class AuthService {
     return hash;
   }
 
-  async registerUser(registerUser: RegisterUserDto) {
-    if (!registerUser.password) {
-      throw error;
-    }
+  // async registerUser(registerUser: RegisterUserDto) {
+  //   if (!registerUser.password) {
+  //     throw error;
+  //   }
 
-    const hashPassword = await this.hashPassword(registerUser.password);
-    let response = await this.userService.create({
-      ...registerUser,
-      password: hashPassword,
-    });
-    if (response) {
-      const { password, ...result } = response;
-      return result;
-    }
-  }
+  //   const hashPassword = await this.hashPassword(registerUser.password);
+  //   let response = await this.userService.create({
+  //     ...registerUser,
+  //     password: hashPassword,
+  //   });
+  //   if (response) {
+  //     const { password, ...result } = response;
+  //     return result;
+  //   }
+  // }
 
   async signInSocialLogin(user) {
     if (!user) {
@@ -330,11 +341,12 @@ export class AuthService {
     });
 
     if (!userExists) {
-      user = await this.registerUser({
+      user = await this.register({
         username: user.firstName.concat(' ').concat(user.lastName),
         password: 'DEFAULT PASSWORD',
         role: 'user',
         email: user.email,
+        avatarUrl: user.picture ? user.picture : null
       });
 
 
