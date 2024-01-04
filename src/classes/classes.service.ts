@@ -47,7 +47,11 @@ export class ClassesService {
         'BASE_URL_BACKEND',
       )}/classes/enrolled?code=${savedClass.class_code}`;
 
-      return await this.classRepository.save(savedClass);
+      const addedClass = await this.classRepository.save(savedClass);
+      return {
+        ...addedClass,
+        "type": "teaching"
+      }
     } else {
       throw new HttpException('Class already exists', HttpStatus.CONFLICT);
     }
