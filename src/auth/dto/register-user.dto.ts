@@ -12,7 +12,7 @@ export class RegisterUserDto {
   password: string;
 
   @IsNotEmpty()
-  @MaxLength(16)
+  @MaxLength(35)
   username: string;
 
   @IsNotEmpty()

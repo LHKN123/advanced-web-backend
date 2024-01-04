@@ -250,7 +250,7 @@ export class ClassesService {
         role: memberDto.role,
         student_id: existedUser.student_id,
         email: memberDto.email,
-        fullName: "LTT",
+        fullName: memberDto.role === "Student" ? "LTT" : existedUser.username,
         avatar_url: existedUser.avatarUrl
       });
 
@@ -375,6 +375,7 @@ export class ClassesService {
         role: 'Student',
         student_id: curUser.student_id,
         email: curUser.email,
+        avatar_url: curUser.avatarUrl
       });
 
       const createdMember = await this.classListRepository.save(newMember);
