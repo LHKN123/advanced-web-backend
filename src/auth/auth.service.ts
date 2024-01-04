@@ -358,7 +358,7 @@ export class AuthService {
       email: user.email,
       username: user.username,
       access_token,
-      refresh_token,
+      refresh_token
     };
   }
 }

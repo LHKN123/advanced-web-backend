@@ -130,14 +130,14 @@ export class AuthController {
     return HttpStatus.OK;
   }
 
-  // @Get('/facebook/callback')
-  // @UseGuards(FacebookGuard)
-  // async facebookLoginRedirect(@Req() req, @Res() res): Promise<void> {
-  //   console.log('USER', req.user);
-  //   const auth = await this.authService.signInSocialLogin(req.user.user);
+  @Get('/facebook/callback')
+  @UseGuards(FacebookGuard)
+  async facebookLoginRedirect(@Req() req, @Res() res): Promise<void> {
+    console.log('USER', req.user);
+    const auth = await this.authService.signInSocialLogin(req.user.user);
 
-  //   return this.sendResponseSocialLogin(res, auth);
-  // }
+    return this.sendResponseSocialLogin(res, auth);
+  }
 
   async sendResponseSocialLogin(
     res: Response,
