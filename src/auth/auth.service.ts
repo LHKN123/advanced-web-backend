@@ -390,7 +390,9 @@ export class AuthService {
       status: user.status,
       role: user.role,
       access_token,
-      refresh_token
+      refresh_token,
+      studentId: user.student_id,
+      avatarUrl: user.avatarUrl
     };
   }
 }
