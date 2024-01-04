@@ -6,6 +6,7 @@ import {
   UseGuards,
   Get,
   Req,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -43,6 +44,31 @@ export class UsersController {
   async getAllUsers(@Req() req: any) {
     return this.usersService.getAllUsers();
   }
+
+  @Delete(':userId')
+  @ApiOperation({ summary: 'Delete/remove a user from entity' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async deleteUser(@Req() req: any, @Param('userId') userId: string) {
+    return this.usersService.deleteUser(userId);
+  }
+
+  @Get(':userId')
+  @ApiOperation({ summary: 'Get a user' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getUser(@Req() req: any, @Param('userId') userId: string) {
+    return this.usersService.getUserById(userId);
+  }
+
+  @Put(':userId')
+  @ApiOperation({ summary: 'Update a user information' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async updateUser(@Req() req: any, @Param('userId') userId: string, @Body() userInfo: any) {
+    return this.usersService.updateUser(userId, userInfo);
+  }
+
   // @Get('user')
   // @ApiOperation({ summary: 'Update profile info' })
   // @ApiBearerAuth('access-token')

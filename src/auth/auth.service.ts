@@ -54,11 +54,14 @@ export class AuthService {
       user.email,
     );
 
-    return {
-      ...user, status: banUser.status,
-      access_token: access_token,
-      refresh_token: refresh_token
-    };
+    await this.userRepository.save(
+      {
+        ...user,
+        email: banUser.email,
+        status: banUser.status,
+        refresh_token: refresh_token
+      },
+    );
   }
 
   async login(loginUserDto: LoginUserDto): Promise<any> {
@@ -82,12 +85,20 @@ export class AuthService {
       );
     }
 
+    if (user.status === "ban") {
+      throw new HttpException(
+        'This account is restricted',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     const payload = { id: user._id };
     const { access_token, refresh_token } = await this.generateToken(
       payload,
       user.email,
     );
     return {
+      id: user._id,
       email: user.email,
       username: user.username,
       access_token,
@@ -117,6 +128,13 @@ export class AuthService {
     if (!isPasswordCorrect) {
       throw new HttpException(
         'Password is not correct',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    if (user.status === "ban") {
+      throw new HttpException(
+        'This account is restricted',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -357,6 +375,8 @@ export class AuthService {
     return {
       email: user.email,
       username: user.username,
+      status: user.status,
+      role: user.role,
       access_token,
       refresh_token
     };

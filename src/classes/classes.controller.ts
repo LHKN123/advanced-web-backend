@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -38,6 +39,25 @@ export class ClassesController {
     return this.classService.create(reqBody, host_id);
   }
 
+  @Post(':action/:classId')
+  @ApiOperation({ summary: 'Activate or deactivate a specific class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async setActiveStatus(
+    @Param('action') action: string,
+    @Param('classId') classId: string,
+  ) {
+    if (action === 'active') {
+      return this.classService.active(classId);
+    } else if (action === 'inactive') {
+      return this.classService.inactive(classId);
+    } else {
+      // Handle invalid action
+      throw new BadRequestException('Invalid action');
+    }
+  }
+
+
   @Get('teaching')
   @ApiOperation({ summary: 'Get all created classes by user' })
   @ApiBearerAuth('access-token')
@@ -45,6 +65,15 @@ export class ClassesController {
   async getTeachingClasses(@Req() req: any) {
     const host_id = req.user.id;
     return this.classService.getAllTeachingClasses(host_id);
+  }
+
+  //Admin side 
+  @Get('teaching/exist')
+  @ApiOperation({ summary: 'Get all existing teaching classes' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getTeachingClassesExist(@Req() req: any) {
+    return this.classService.getAllTeachingClassesExist();
   }
 
   @Get('class-student/:classId')
@@ -71,6 +100,14 @@ export class ClassesController {
   @UseGuards(AuthGuard('jwt'))
   async getClassById(@Req() req: any, @Param('classId') classId: string) {
     return await this.classService.getClassById(classId);
+  }
+
+  @Delete(':classId')
+  @ApiOperation({ summary: 'Remove a class from database' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async deleteClassById(@Req() req: any, @Param('classId') classId: string) {
+    return await this.classService.deleteClassById(classId);
   }
 
   @Get(':classId/members')

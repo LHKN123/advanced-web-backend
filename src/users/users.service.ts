@@ -31,6 +31,19 @@ export class UsersService {
     }
   }
 
+  async deleteUser(userId: string): Promise<any> {
+    const objectId = new ObjectId(userId);
+    const user = await this.userRepository.findOne({
+      where: { _id: objectId },
+    });
+
+    if (!user) {
+      throw new HttpException('User is not exist', HttpStatus.UNAUTHORIZED);
+    }
+
+    await this.userRepository.remove(user);
+  }
+
   async updateProfile(id: string, username: string, student_id: string) {
     const objectId = new ObjectId(id);
     const updatedUser = await this.userRepository.findOne({
@@ -62,7 +75,7 @@ export class UsersService {
     }
   }
 
-  async getUserById(userId: string): Promise<UserEntity> {
+  async getUserById(userId: string): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { _id: new ObjectId(userId) },
     });
@@ -72,5 +85,19 @@ export class UsersService {
   async getAllUsers(): Promise<any> {
     const users = await this.userRepository.find();
     return users;
+  }
+
+  async updateUser(userId: string, reqBody: any): Promise<any> {
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.CONFLICT);
+    }
+
+    await this.userRepository.update(new ObjectId(userId), {
+      ...user,
+      username: reqBody.username,
+      student_id: reqBody.studentId,
+      role: reqBody.role
+    });
   }
 }
