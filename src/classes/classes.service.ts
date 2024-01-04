@@ -376,7 +376,7 @@ export class ClassesService {
       const createdMember = await this.classListRepository.save(newMember);
 
       if (createdMember) {
-        return curClass;
+        return { ...curClass, type: "enrolled" };
       } else {
         throw new HttpException("Can't join the class!", HttpStatus.CONFLICT);
       }
