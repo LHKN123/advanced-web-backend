@@ -26,7 +26,7 @@ export class ClassEntity {
   class_code: string;
 
   @Column()
-  status: string = 'Active';
+  status: string = 'active';
 
   // @Column()
   // image_url: string =

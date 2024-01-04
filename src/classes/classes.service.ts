@@ -61,6 +61,11 @@ export class ClassesService {
     return allClasses;
   }
 
+  async getAllTeachingClassesExist(): Promise<any> {
+    const allClasses = await this.classRepository.find();
+    return allClasses;
+  }
+
   async getClassStudentInfo(user_id: string, class_id: string): Promise<any> {
     const classInfo = await this.classListRepository.findOne({
       where: { user_id: user_id, class_id: class_id },
@@ -99,6 +104,49 @@ export class ClassesService {
     });
 
     return _class;
+  }
+
+  async deleteClassById(class_id: string): Promise<any> {
+    const _class = await this.getClassById(class_id);
+
+    if (!_class) {
+      throw new HttpException("Class not found: ", HttpStatus.NOT_FOUND);
+    }
+
+    const { host, members } = await this.getMembers(class_id);
+    for (const member of members) {
+      await this.deleteMember(class_id, member._id);
+    }
+    await this.deleteMember(class_id, host._id);
+
+    await this.classRepository.remove(_class);
+    return HttpStatus.OK;
+  }
+
+  async active(class_id: string): Promise<any> {
+    const _class = await this.getClassById(class_id);
+
+    if (!_class) {
+      throw new HttpException("Class not found: ", HttpStatus.NOT_FOUND);
+    }
+
+    await this.classRepository.update(new ObjectId(class_id), {
+      ..._class,
+      status: "active"
+    })
+  }
+
+  async inactive(class_id: string): Promise<any> {
+    const _class = await this.getClassById(class_id);
+
+    if (!_class) {
+      throw new HttpException("Class not found: ", HttpStatus.NOT_FOUND);
+    }
+
+    await this.classRepository.update(new ObjectId(class_id), {
+      ..._class,
+      status: "inactive"
+    })
   }
 
   async getMembers(class_id: string): Promise<any> {
