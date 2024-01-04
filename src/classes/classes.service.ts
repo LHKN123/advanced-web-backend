@@ -260,7 +260,7 @@ export class ClassesService {
     }
   }
 
-  async deleteMember(class_id: string, member_id: string) {
+  async deleteMember(class_id: string, member_id: string): Promise<any> {
     const member = await this.classListRepository.findOne({
       where: { class_id: class_id, user_id: member_id },
     });
@@ -271,6 +271,33 @@ export class ClassesService {
     } else {
       throw new HttpException("Member doesn't exist", HttpStatus.CONFLICT);
     }
+  }
+
+  async updateMember(class_id: string, member_id: string, reqBody: any): Promise<any> {
+    const member = await this.classListRepository.findOne({
+      where: { class_id: class_id, user_id: member_id },
+    });
+
+    if (member) {
+      await this.classListRepository.save({
+        ...member, fullName: reqBody.fullName,
+        student_id: reqBody.student_id,
+        role: reqBody.role
+      });
+      return HttpStatus.OK;
+    } else {
+      throw new HttpException("Member doesn't exist", HttpStatus.CONFLICT);
+    }
+  }
+
+  async getMember(class_id: string, member_id: string): Promise<any> {
+    const member = await this.classListRepository.findOne({
+      where: { class_id: class_id, user_id: member_id },
+    });
+    if (!member) {
+      throw new HttpException("Member doesn't exist", HttpStatus.NOT_FOUND);
+    }
+    return member;
   }
 
   async getAllEnrolledClasses(user_id: string): Promise<any> {

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -152,12 +153,36 @@ export class ClassesController {
   @ApiOperation({ summary: 'Delete a member from the class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async deleteRubric(
+  async deleteMember(
     @Req() req: any,
     @Param('classId') class_id: string,
     @Param('memberId') member_id: string,
   ) {
     return await this.classService.deleteMember(class_id, member_id);
+  }
+
+  @Put(':classId/members/:memberId')
+  @ApiOperation({ summary: 'Update info of a member from the class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async updateMember(
+    @Req() req: any,
+    @Body() reqBody: any,
+    @Param('classId') class_id: string,
+    @Param('memberId') member_id: string,
+  ) {
+    return await this.classService.updateMember(class_id, member_id, reqBody);
+  }
+
+  @Get(':classId/members/:memberId')
+  @ApiOperation({ summary: 'Get a member from the class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getMember(
+    @Param('classId') class_id: string,
+    @Param('memberId') member_id: string,
+  ) {
+    return await this.classService.getMember(class_id, member_id);
   }
 
   @Post('get-enrolled')
