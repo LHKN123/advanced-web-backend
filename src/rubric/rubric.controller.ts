@@ -22,7 +22,7 @@ import { RubricEntity } from './rubric.entity';
 @ApiTags('rubric')
 @Controller('rubric')
 export class RubricController {
-  constructor(private readonly rubricService: RubricService) {}
+  constructor(private readonly rubricService: RubricService) { }
   @Post('create')
   @ApiOperation({ summary: 'Create new rubric' })
   @ApiBearerAuth('access-token')
@@ -47,11 +47,12 @@ export class RubricController {
   async getAllClasses(@Req() req: any, @Param('classId') classId: string) {
     return this.rubricService.get(classId);
   }
-  @Delete(':rubric_id')
+  @Delete(':rubricId')
   @ApiOperation({ summary: 'Delete a rubric from a class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async deleteRubric(@Req() req: any, @Param('rubricId') rubric_id: string) {
+    console.log('rubric', rubric_id);
     return await this.rubricService.delete(rubric_id);
   }
   @Put('update')
@@ -60,7 +61,8 @@ export class RubricController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(200)
   async update(@Req() req: any, @Body() reqBody: UpdateAllRubricDto) {
-    console.log('Update rubric', reqBody.rubrics[0]);
+    console.log('Update rubric', reqBody);
+
     this.rubricService.update(reqBody);
   }
 }

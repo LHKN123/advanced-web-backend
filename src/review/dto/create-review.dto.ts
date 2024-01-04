@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateReviewDto {
   @IsNotEmpty()
@@ -10,7 +10,7 @@ export class CreateReviewDto {
   @IsNotEmpty()
   gradeComposition: string;
 
-  @IsNotEmpty()
+  @IsString()
   currentGrade: string;
 
   @IsNotEmpty()

@@ -98,37 +98,56 @@ export class SocketioGateway
       let userId = payload.id;
 
       //TODO: use usersService
+      let user = await this.usersService.getUserById(userId);
       let studentId = '';
+
+      if (user) {
+        studentId = user.student_id;
+      }
 
       //get classes and reviews
 
       //TODO: use classesService
-      let enrolledClassesId = [''];
-      let teachingClassesId = [''];
+      let enrolledClasses =
+        await this.classesService.getAllEnrolledClasses(userId);
+      let teachingClasses =
+        await this.classesService.getAllTeachingClasses(userId);
+
+      let enrolledClassesId = [];
+      let teachingClassesId = [];
 
       let reviewIdList = [];
 
-      if (studentId) {
-        enrolledClassesId.forEach((element) => {
+      if (studentId && studentId != '') {
+        if (enrolledClasses) {
+          enrolledClasses.forEach((element) => {
+            async () => {
+              let temp = await this.reviewService.getReviewIdListForStudent(
+                studentId,
+                element._id,
+              );
+
+              reviewIdList = [...reviewIdList, ...temp];
+
+              enrolledClassesId.push(element._id);
+            };
+          });
+        }
+      }
+
+      if (teachingClasses) {
+        teachingClasses.forEach((element) => {
           async () => {
-            let temp = await this.reviewService.getReviewIdListForStudent(
-              studentId,
-              element,
+            let temp = await this.reviewService.getReviewIdListForTeacher(
+              element._id,
             );
 
             reviewIdList = [...reviewIdList, ...temp];
+
+            teachingClassesId.push(element._id);
           };
         });
       }
-
-      teachingClassesId.forEach((element) => {
-        async () => {
-          let temp =
-            await this.reviewService.getReviewIdListForTeacher(element);
-
-          reviewIdList = [...reviewIdList, ...temp];
-        };
-      });
 
       let myUserData = {
         studentId: studentId,
@@ -138,6 +157,8 @@ export class SocketioGateway
       };
       this.dataMap.set(userId, myUserData);
 
+      console.log('my user data: ', myUserData);
+
       // join all user classes and review id
       const roomNameList = [
         ...enrolledClassesId,
@@ -146,6 +167,7 @@ export class SocketioGateway
       ];
       await client.join(roomNameList);
 
+      console.log('my rooms: ', roomNameList);
       // // log test
       // for (const roomName of roomNameList) {
       //   const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
@@ -187,7 +209,7 @@ export class SocketioGateway
   notify(
     // @ConnectedSocket() client: SocketWithData,
     @ConnectedSocket() client: Socket,
-    @MessageBody() message: any, //{value: string, room: string}
+    @MessageBody() message: { value: string; room: string },
     @Req() req: any,
   ) {
     console.log('req user', req.user);
@@ -198,11 +220,13 @@ export class SocketioGateway
 
     this.io.on('notify', (message) => {});
 
+    // TODO:
     // only notify target class or review
-    // const target = message.room;
-    // this.io.to(target).emit('returnNotification', message);
+    const target = message.room;
+    this.io.to(target).emit('returnNotification', message.value);
 
-    this.io.emit('returnNotification', message);
+    //for testing only
+    // this.io.emit('returnNotification', message.value);
 
     // alternative way: notify everyone
     // const roomNameList = [client.class_id_list, ...client.review_id_list];

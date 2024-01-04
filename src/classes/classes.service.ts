@@ -58,7 +58,20 @@ export class ClassesService {
       where: { host_id: host_id },
     });
 
-    return allClasses;
+    const teachingClassList = await Promise.all(
+      allClasses.map(async (_class) => {
+        const member_number = await this.getMemberNumberInClass(_class._id.toString())
+
+        const result = {
+          ..._class,
+          student_number: member_number.students,
+          teacher_number: member_number.teachers
+        };
+        return result;
+      }),
+    );
+
+    return teachingClassList;
   }
 
   async getAllTeachingClassesExist(): Promise<any> {
@@ -77,19 +90,26 @@ export class ClassesService {
   async getAllClasses(host_id: string): Promise<any> {
     const teachingClasses = await this.getAllTeachingClasses(host_id);
     const teachingClassList = await Promise.all(
-      teachingClasses.map(async (member) => {
+      teachingClasses.map(async (_class) => {
+        const member_number = await this.getMemberNumberInClass(_class._id.toString())
         return {
-          ...member,
-          type: "teaching"
+          ..._class,
+          type: "teaching",
+          student_number: member_number.students,
+          teacher_number: member_number.teachers
         };
       }),
     );
+
     const enrolledClasses = await this.getAllEnrolledClasses(host_id);
     const enrolledClassList = await Promise.all(
-      enrolledClasses.map(async (member) => {
+      enrolledClasses.map(async (_class) => {
+        const member_number = await this.getMemberNumberInClass(_class._id.toString());
         return {
-          ...member,
-          type: "enrolled"
+          ..._class,
+          type: "enrolled",
+          student_number: member_number.students,
+          teacher_number: member_number.teachers
         };
       }),
     );
@@ -162,19 +182,6 @@ export class ClassesService {
       where: { _id: new ObjectId(curClass.host_id) },
     });
 
-    // const members = await Promise.all(
-    //   classList.map(async (member) => {
-    //     const user = await this.userRepository.findOne({
-    //       where: { _id: new ObjectId(member.user_id) },
-    //     });
-
-    //     return {
-    //       ...member,
-    //       avatar_url: user?.avatarUrl,
-    //       fullName: user?.username,
-    //     }; // Use optional chaining to avoid errors if user is null
-    //   }),
-    // );
     return { host_user: host_user, members: classList };
   }
 
@@ -267,7 +274,6 @@ export class ClassesService {
   }
 
   async getAllEnrolledClasses(user_id: string): Promise<any> {
-    console.log('getAllEnrolledClasses', user_id);
     const allEnrolledClassesId = await this.classListRepository.find({
       where: { user_id: user_id },
     });
@@ -282,13 +288,23 @@ export class ClassesService {
       }),
     );
 
-    return allEnrolledClasses;
+    const allClasses = await Promise.all(
+      allEnrolledClasses.map(async (_class) => {
+        const member_number = await this.getMemberNumberInClass(_class._id.toString())
+        return {
+          ..._class,
+          student_number: member_number.students,
+          teacher_number: member_number.teachers
+        };
+      }),
+    );
+
+    return allClasses;
   }
 
   async enrolledClass(
     code: string,
     user_id: string,
-    res: Response,
   ): Promise<any> {
     const curUser = await this.userRepository.findOne({
       where: { _id: new ObjectId(user_id) },
@@ -296,19 +312,32 @@ export class ClassesService {
 
     if (curUser) {
       if (!curUser.student_id) {
-        console.log('Empty student id', curUser);
-        return res.redirect(`http://localhost:3000/profile/empty-student-id`);
+        // Instead of redirecting, you can throw an exception or return an error response.
+        throw new HttpException(
+          'User does not have a student ID',
+          HttpStatus.CONFLICT,
+        );
       }
 
       const curClass = await this.classRepository.findOne({
         where: { class_code: code },
       });
+
       if (!curClass) {
         throw new HttpException(
           'Class code does not match any classes!',
-          HttpStatus.CONFLICT,
+          HttpStatus.NOT_FOUND,
         );
       }
+
+      const existingClass = await this.classListRepository.findOne({
+        where: { class_id: curClass._id.toString(), user_id: curUser._id.toString() },
+      });
+
+      if (existingClass) {
+        throw new HttpException("You've already enrolled the class", HttpStatus.CONFLICT);
+      }
+
       const newMember = this.classListRepository.create({
         class_id: curClass._id.toString(),
         user_id: curUser._id.toString(),
@@ -316,20 +345,34 @@ export class ClassesService {
         student_id: curUser.student_id,
         email: curUser.email,
       });
-      console.log('Enroll new class');
+
       const createdMember = await this.classListRepository.save(newMember);
+
       if (createdMember) {
-        console.log(createdMember);
         return curClass;
       } else {
         throw new HttpException("Can't join the class!", HttpStatus.CONFLICT);
       }
-
-      // return res.redirect(
-      //   `http://localhost:3000/enrolled/${curClass._id}/detail`,
-      // );
     } else {
-      return res.redirect(`http://localhost:3000/auth`);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
   }
+
+  async getMemberNumberInClass(class_id: string): Promise<any> {
+    const students = await this.classListRepository.find({
+      where: { class_id: class_id, role: "Student" }
+    });
+
+
+    const teachers = await this.classListRepository.find({
+      where: { class_id: class_id, role: "Teacher" }
+    });
+
+    const result = {
+      "students": students.length,
+      "teachers": teachers.length + 1
+    }
+    return result;
+  }
+
 }

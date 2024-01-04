@@ -15,7 +15,7 @@ export class RubricService {
   constructor(
     @InjectRepository(RubricEntity)
     private readonly rubricRepository: Repository<RubricEntity>,
-  ) {}
+  ) { }
 
   async create(rubricDto: CreateRubricDto): Promise<any> {
     const existingRubric = await this.rubricRepository.findOne({
@@ -59,19 +59,20 @@ export class RubricService {
 
   async update(rubricDto: UpdateAllRubricDto) {
     rubricDto.rubrics.map(async (item) => {
-      console.log('ITEM: ', item.gradeName);
+      console.log('ITEM: ', item);
       const objectId = new ObjectId(item._id);
       const rubric = await this.rubricRepository.findOne({
         where: { _id: objectId },
       });
-
+      console.log('RUBRIC: ', item._id);
       if (rubric) {
         rubric.gradeName = item.gradeName;
         rubric.gradeScale = item.gradeScale;
         rubric.order = item.order;
-        await this.rubricRepository.remove(rubric);
+
+        await this.rubricRepository.save(rubric);
       } else {
-        throw new HttpException("Rubric doesn't exist", HttpStatus.CONFLICT);
+        throw new HttpException("Can't update rubrics", HttpStatus.CONFLICT);
       }
     });
   }

@@ -337,10 +337,10 @@ export class AuthService {
         email: user.email,
       });
 
-      console.log('REFGISTER', user);
+
     }
 
-    const payload = { id: user._id };
+    const payload = { id: userExists ? userExists._id : user._id };
     const { access_token, refresh_token } = await this.generateToken(
       payload,
       user.email,
@@ -362,12 +362,10 @@ export class AuthService {
 
   async getUser(userId: string): Promise<any> {
     const objectId = new ObjectId(userId);
-    console.log('objectId', objectId);
     const user = await this.userRepository.findOne({
       where: { _id: objectId },
     });
 
-    console.log('user', user);
 
     const payload = { id: user._id };
     const { access_token, refresh_token } = await this.generateToken(

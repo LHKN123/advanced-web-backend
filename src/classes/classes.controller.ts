@@ -177,10 +177,21 @@ export class ClassesController {
   @UseGuards(AuthGuard('jwt'))
   async enrolledClass(
     @Req() req: any,
-    @Query() code: EnrollClassDto,
-    @Res() res: Response,
+    @Query() code: EnrollClassDto
   ) {
     const user_id = req.user.id;
-    return this.classService.enrolledClass(code.code, user_id, res);
+    return this.classService.enrolledClass(code.code, user_id);
   }
+
+  // @Get('getnumber/:classId')
+  // @ApiOperation({ summary: 'Enrolled the class' })
+  // @ApiBearerAuth('access-token')
+  // @UseGuards(AuthGuard('jwt'))
+  // async getmember(
+  //   @Req() req: any,
+  //   @Param('classId') class_id: string
+  // ) {
+  //   const user_id = req.user.id;
+  //   return this.classService.getMemberNumberInClass(class_id);
+  // }
 }
