@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateGradeDto } from './dto/create-grade.dto';
 import { GradeEntity } from './grade.entity';
+import { RubricService } from 'src/rubric/rubric.service';
+import { RubricEntity } from 'src/rubric/rubric.entity';
 
 @Injectable()
 export class GradeService {
   constructor(
     @InjectRepository(GradeEntity)
     private gradeRepository: Repository<GradeEntity>,
+    private rubricService: RubricService,
   ) {}
   // get grades by rubric id
   async getAllGrade(rubricId: string): Promise<any> {
@@ -43,6 +46,32 @@ export class GradeService {
 
     return gradeList;
   }
+
+  // get grades by student id
+  async getFinalizedGrade(classId: string, studentId: string): Promise<any> {
+    let finalizedGrade: number;
+    finalizedGrade = 0;
+
+    const gradeList = await this.gradeRepository.find({
+      where: {
+        studentId: studentId,
+      },
+    });
+
+    for (const grade of gradeList) {
+      if (grade.grade && grade.grade !== 0) {
+        let rubric: RubricEntity;
+        rubric = await this.rubricService.getById(grade.rubricId);
+
+        if (rubric.class_id == classId) {
+          finalizedGrade += (grade.grade * rubric.gradeScale) / 100;
+        }
+      }
+    }
+
+    return finalizedGrade;
+  }
+
   // create grade
   async create(gradeDto: CreateGradeDto): Promise<any> {
     const existingGrade = await this.gradeRepository.findOne({

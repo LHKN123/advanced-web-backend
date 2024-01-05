@@ -46,6 +46,14 @@ export class RubricService {
     }
   }
 
+  async getById(rubric_id: string): Promise<any> {
+    const objectId = new ObjectId(rubric_id);
+
+    return await this.rubricRepository.findOne({
+      where: { _id: objectId },
+    });
+  }
+
   async get(class_id: string): Promise<any> {
     const allRubrics = await this.rubricRepository.find({
       where: { class_id: class_id },

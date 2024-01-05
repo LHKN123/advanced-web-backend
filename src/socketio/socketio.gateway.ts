@@ -113,6 +113,9 @@ export class SocketioGateway
       let teachingClasses =
         await this.classesService.getAllTeachingClasses(userId);
 
+      console.log('my enrolledClasses: ', enrolledClasses);
+      console.log('my teachingClasses: ', teachingClasses);
+
       let enrolledClassesId = [];
       let teachingClassesId = [];
 
