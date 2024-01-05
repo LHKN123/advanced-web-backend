@@ -6,37 +6,55 @@ import { ImportStudentDto } from './dto/import_student.dto';
 
 @Injectable()
 export class StudentService {
-    constructor(
-        @InjectRepository(StudentEntity)
-        private readonly studentRepository: Repository<StudentEntity>,
-    ) { }
+  constructor(
+    @InjectRepository(StudentEntity)
+    private readonly studentRepository: Repository<StudentEntity>,
+  ) {}
 
-    async create(classId: string, studentDto: ImportStudentDto): Promise<any> {
-        const existedRow = await this.studentRepository.findOne({
-            where: { class_id: classId },
-        });
-        if (!existedRow) {
-            const newRow = this.studentRepository.create({
-                class_id: classId,
-                students: studentDto.students
-            });
-            console.log("new row  ", newRow);
+  async create(classId: string, studentDto: ImportStudentDto): Promise<any> {
+    const existedRow = await this.studentRepository.findOne({
+      where: { class_id: classId },
+    });
+    if (!existedRow) {
+      const newRow = this.studentRepository.create({
+        class_id: classId,
+        students: studentDto.students,
+      });
+      console.log('new row  ', newRow);
 
-            return await this.studentRepository.save(newRow);
-        } else {
-            existedRow.students = studentDto.students;
+      return await this.studentRepository.save(newRow);
+    } else {
+      existedRow.students = studentDto.students;
 
-            return await this.studentRepository.save(existedRow);
+      return await this.studentRepository.save(existedRow);
+    }
+  }
+
+  async get(class_id: string): Promise<any> {
+    const studentList = await this.studentRepository.find({
+      where: { class_id: class_id },
+    });
+    console.log('Student list found', studentList, class_id);
+    return studentList;
+  }
+
+  async getStudent(class_id: string, student_id: string): Promise<any> {
+    const studentList = await this.studentRepository.find({
+      where: { class_id: class_id },
+    });
+    console.log('Student list found', studentList, class_id);
+
+    for (const studentArray of studentList) {
+      if (studentArray.students) {
+        for (const student of studentArray.students) {
+          if (student.studentId === student_id) {
+            console.log('Student fullname: ' + student.fullname);
+            return student.fullname;
+          }
         }
+      }
     }
 
-    async get(class_id: string): Promise<any> {
-        const studentList = await this.studentRepository.find({
-            where: { class_id: class_id },
-        });
-        console.log('Student list found', studentList, class_id);
-        return studentList;
-    }
-
-
+    return '';
+  }
 }
