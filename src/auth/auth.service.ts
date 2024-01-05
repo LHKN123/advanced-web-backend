@@ -19,6 +19,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { RecoveryPasswordDto } from './dto/recovery-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { BanUserDto } from './dto/ban-user.dto';
+import { ImportStudentIdDto } from './dto/import_studentId.dto';
 
 @Injectable()
 export class AuthService {
@@ -394,5 +395,19 @@ export class AuthService {
       studentId: user.student_id,
       avatarUrl: user.avatarUrl
     };
+  }
+
+  async import(importStudentIdDto: ImportStudentIdDto): Promise<any> {
+    importStudentIdDto.studentIds.map(async (item) => {
+      const user = await this.userRepository.findOne({
+        where: { email: item.email },
+      });
+
+      if (user) {
+        user.student_id = item.studentId;
+
+        await this.userRepository.save(user);
+      }
+    });
   }
 }

@@ -37,6 +37,7 @@ import { ConfigService } from '@nestjs/config';
 import { StringDecoder } from 'string_decoder';
 import { AuthGuard } from '@nestjs/passport';
 import { BanUserDto } from './dto/ban-user.dto';
+import { ImportStudentIdDto } from './dto/import_studentId.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -174,5 +175,13 @@ export class AuthController {
   async getUser(@Req() req: any) {
     const userId = req.user.id;
     return this.authService.getUser(userId);
+  }
+
+  @Post('import')
+  @ApiOperation({ summary: 'Import studentId list from Excel ' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async createRubric(@Req() req: any, @Body() reqBody: ImportStudentIdDto) {
+    return this.authService.import(reqBody);
   }
 }

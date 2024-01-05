@@ -34,3 +34,19 @@ export class UserEntity {
   @Column()
   student_id: string;
 }
+
+
+export class ImportUser {
+  @Column()
+  email: string;
+
+  @Column()
+  studentId: string;
+
+  static fromPlain(plain: any): ImportUser {
+    const user = new ImportUser();
+    user.studentId = plain.studentId;
+    user.email = plain.email;
+    return user;
+  }
+}
