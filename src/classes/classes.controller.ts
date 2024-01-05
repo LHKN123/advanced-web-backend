@@ -29,7 +29,7 @@ import { EnrollClassDto } from './dto/enroll-class.dto';
 @ApiTags('classes')
 @Controller('classes')
 export class ClassesController {
-  constructor(private readonly classService: ClassesService) { }
+  constructor(private readonly classService: ClassesService) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create new class' })
@@ -58,7 +58,6 @@ export class ClassesController {
     }
   }
 
-
   @Get('teaching')
   @ApiOperation({ summary: 'Get all created classes by user' })
   @ApiBearerAuth('access-token')
@@ -68,7 +67,7 @@ export class ClassesController {
     return this.classService.getAllTeachingClasses(host_id);
   }
 
-  //Admin side 
+  //Admin side
   @Get('teaching/exist')
   @ApiOperation({ summary: 'Get all existing teaching classes' })
   @ApiBearerAuth('access-token')
@@ -78,7 +77,9 @@ export class ClassesController {
   }
 
   @Get('class-student/:classId')
-  @ApiOperation({ summary: 'Get specific class info that the user(student) enrolled' })
+  @ApiOperation({
+    summary: 'Get specific class info that the user(student) enrolled',
+  })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getClassStudent(@Req() req: any, @Param('classId') classId: string) {
@@ -115,9 +116,17 @@ export class ClassesController {
   @ApiOperation({ summary: 'Get all members in the class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async getMembers(@Req() req: any, @Param('classId') classId: string) {
+  async getMembers(@Param('classId') classId: string) {
     // const user_id = req.user.id;
     return await this.classService.getMembers(classId);
+  }
+
+  @Get(':classId/getMe')
+  @ApiOperation({ summary: 'Get request user as member from the class' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Req() req: any, @Param('classId') class_id: string) {
+    return await this.classService.getMember(class_id, req.user.id);
   }
 
   @Post(':classId/members/invite-member')
@@ -200,10 +209,7 @@ export class ClassesController {
   @ApiOperation({ summary: 'Enrolled the class' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async enrolledClass(
-    @Req() req: any,
-    @Query() code: EnrollClassDto
-  ) {
+  async enrolledClass(@Req() req: any, @Query() code: EnrollClassDto) {
     const user_id = req.user.id;
     return this.classService.enrolledClass(code.code, user_id);
   }
