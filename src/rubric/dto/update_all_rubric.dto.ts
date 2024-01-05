@@ -14,8 +14,8 @@ export class UpdateAllRubricDto {
   @IsArray()
   @IsNotEmpty()
   // @Type(() => RubricEntity)
-  @ArrayMinSize(1)
   @ApiHideProperty()
+  @ArrayMinSize(1)
   rubrics: RubricEntity[];
 
 
