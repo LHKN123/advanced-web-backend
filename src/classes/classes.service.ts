@@ -368,6 +368,9 @@ export class ClassesService {
       if (existingClass) {
         throw new HttpException("You've already enrolled the class", HttpStatus.CONFLICT);
       }
+      else if (curClass.status === "inactive") {
+        throw new HttpException("The class is inactive", HttpStatus.CONFLICT);
+      }
 
       const newMember = this.classListRepository.create({
         class_id: curClass._id.toString(),
