@@ -45,6 +45,17 @@ export class GradeController {
     return await this.gradeService.getStudentGrade(studentId);
   }
 
+  @Get('/finalizedGrade/:classId/:studentId')
+  @ApiOperation({ summary: 'Get finalized grade by student id' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getFinalized(
+    @Param('studentId') studentId: string,
+    @Param('classId') classId: string,
+  ) {
+    return await this.gradeService.getFinalizedGrade(classId, studentId);
+  }
+
   @Post('/create')
   @ApiOperation({ summary: 'Create new grade' })
   @ApiBearerAuth('access-token')

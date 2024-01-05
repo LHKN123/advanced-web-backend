@@ -16,7 +16,7 @@ export class ReviewService {
     private reviewRepository: Repository<ReviewEntity>,
     @InjectRepository(CommentEntity)
     private commentRepository: Repository<CommentEntity>,
-  ) { }
+  ) {}
 
   async create(reviewDto: CreateReviewDto): Promise<any> {
     const existingReview = await this.reviewRepository.findOne({
@@ -82,7 +82,6 @@ export class ReviewService {
     return reviewList;
   }
 
-  // REVISE LATER
   async getReviewIdListForTeacher(classId: string): Promise<any> {
     const reviewList = await this.reviewRepository.find({
       where: {
@@ -118,7 +117,6 @@ export class ReviewService {
 
     return reviewIdList;
   }
-  // REVISE LATER
 
   async createReviewComment(
     senderId: string,

@@ -15,7 +15,7 @@ export class RubricService {
   constructor(
     @InjectRepository(RubricEntity)
     private readonly rubricRepository: Repository<RubricEntity>,
-  ) { }
+  ) {}
 
   async create(rubricDto: CreateRubricDto): Promise<any> {
     const existingRubric = await this.rubricRepository.findOne({
@@ -33,6 +33,14 @@ export class RubricService {
     } else {
       throw new HttpException('Rubric already exists', HttpStatus.CONFLICT);
     }
+  }
+
+  async getById(rubric_id: string): Promise<any> {
+    const objectId = new ObjectId(rubric_id);
+
+    return await this.rubricRepository.findOne({
+      where: { _id: objectId },
+    });
   }
 
   async get(class_id: string): Promise<any> {
