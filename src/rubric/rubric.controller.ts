@@ -46,6 +46,7 @@ export class RubricController {
     console.log('rubric', rubric_id);
     return await this.rubricService.delete(rubric_id);
   }
+
   @Put('update')
   @ApiOperation({ summary: 'Update rubric' })
   @ApiBearerAuth('access-token')
@@ -55,5 +56,15 @@ export class RubricController {
     console.log('Update rubric', reqBody);
 
     this.rubricService.update(reqBody);
+  }
+
+  @Put('finalize/:rubricId')
+  @ApiOperation({ summary: 'Finalize rubric' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(200)
+  async finalizeGrade(@Req() req: any, @Param('rubricId') rubricId: string) {
+
+    this.rubricService.finalize(rubricId);
   }
 }

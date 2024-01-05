@@ -25,5 +25,5 @@ export class RubricEntity {
   order: number;
 
   @Column()
-  staus: string = "Not graded";
+  status: string = "Not graded";
 }

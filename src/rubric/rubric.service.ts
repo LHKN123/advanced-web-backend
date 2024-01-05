@@ -9,18 +9,29 @@ import { DeleteRubricDto } from './dto/delete_rubric.dto';
 import { ObjectId } from 'mongodb';
 import { UpdateRubricDto } from './dto/update_rubric.dto';
 import { UpdateAllRubricDto } from './dto/update_all_rubric.dto';
+import { FinalizeRubricDto } from './dto/finalize_rubric.dto';
 
 @Injectable()
 export class RubricService {
   constructor(
     @InjectRepository(RubricEntity)
     private readonly rubricRepository: Repository<RubricEntity>,
+    @InjectRepository(ClassEntity)
+    private readonly classesRepository: Repository<ClassEntity>,
   ) { }
 
   async create(rubricDto: CreateRubricDto): Promise<any> {
+    const existedClass = await this.classesRepository.findOne({
+      where: { _id: new ObjectId(rubricDto.class_id) },
+    });
+
+    if (!existedClass) {
+      throw new HttpException("Class doesn't exist", HttpStatus.CONFLICT);
+    }
     const existingRubric = await this.rubricRepository.findOne({
       where: { class_id: rubricDto.class_id, gradeName: rubricDto.gradeName },
     });
+
     if (!existingRubric) {
       const newRubric = this.rubricRepository.create({
         class_id: rubricDto.class_id,
@@ -75,5 +86,19 @@ export class RubricService {
         throw new HttpException("Can't update rubrics", HttpStatus.CONFLICT);
       }
     });
+  }
+
+  async finalize(rubric_id: string) {
+    const rubric = await this.rubricRepository.findOne({
+      where: { _id: new ObjectId(rubric_id) },
+    });
+
+    console.log("rub", rubric);
+
+    if (rubric) {
+      return await this.rubricRepository.save({ ...rubric, "status": "graded" });
+    } else {
+      throw new HttpException("Rubric doesn't exist", HttpStatus.CONFLICT);
+    }
   }
 }
