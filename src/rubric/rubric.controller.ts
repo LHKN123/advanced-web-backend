@@ -30,16 +30,7 @@ export class RubricController {
   async createRubric(@Req() req: any, @Body() reqBody: CreateRubricDto) {
     return this.rubricService.create(reqBody);
   }
-  // @Post('create')
-  // @ApiOperation({ summary: 'Create new rubric' })
-  // @ApiBearerAuth('access-token')
-  // @UseGuards(AuthGuard('jwt'))
-  // async createRubric(
-  //   @Req() req: any,
-  //   @Body() reqBody: CreateRubricDto,
-  // ): Promise<RubricEntity> {
-  //   return this.rubricService.create(reqBody);
-  // }
+
   @Get(':classId')
   @ApiOperation({ summary: 'Get all rubrics in a class' })
   @ApiBearerAuth('access-token')

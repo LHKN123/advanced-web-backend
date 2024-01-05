@@ -14,12 +14,12 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) { }
 
-  async findByEmail(email: string): Promise<UserEntity | undefined> {
+  async findByEmail(email: string): Promise<any | undefined> {
     const user = await this.userRepository.findOne({ where: { email } });
     return user;
   }
 
-  async create(registerUser: RegisterUserDto): Promise<UserEntity> {
+  async create(registerUser: RegisterUserDto): Promise<any> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerUser.email },
     });

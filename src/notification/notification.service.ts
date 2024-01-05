@@ -9,7 +9,7 @@ export class NotificationService {
   constructor(
     @InjectRepository(NotificationEntity)
     private notificationRepository: Repository<NotificationEntity>,
-  ) {}
+  ) { }
 
   async getNotificationList(userId: string, classId: string): Promise<any> {
     // Promise<NotificationEntity[]>

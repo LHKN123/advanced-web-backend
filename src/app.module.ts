@@ -18,6 +18,7 @@ import { GradeModule } from './grade/grade.module';
 import { AwsModule } from './aws/aws.module';
 import { MulterConfigModule } from './multer/multer.module';
 import { DownloadModule } from './download/download.module';
+import { StudentModule } from './student/student.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { DownloadModule } from './download/download.module';
     GradeModule,
     AwsModule,
     MulterConfigModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

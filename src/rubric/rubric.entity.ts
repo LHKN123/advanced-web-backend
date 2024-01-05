@@ -23,4 +23,7 @@ export class RubricEntity {
 
   @Column('int')
   order: number;
+
+  @Column()
+  staus: string = "Not graded";
 }
