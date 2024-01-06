@@ -1,4 +1,4 @@
-import { IsDecimal, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsNotEmpty, IsNumber, ValidateIf } from 'class-validator';
 
 export class CreateGradeDto {
   @IsNotEmpty()
@@ -7,6 +7,7 @@ export class CreateGradeDto {
   @IsNotEmpty()
   rubricId: string;
 
-  @IsNotEmpty()
-  grade: number;
+  @IsNumber()
+  @ValidateIf((object, value) => value !== null)
+  grade: number | null;
 }

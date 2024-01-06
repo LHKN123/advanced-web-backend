@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateReviewDto {
   @IsNotEmpty()
@@ -13,6 +13,6 @@ export class UpdateReviewDto {
   @IsNotEmpty()
   status: string;
 
-  @IsNotEmpty()
+  @IsString()
   currentGrade: string;
 }
