@@ -181,7 +181,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Import studentId list from Excel ' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
-  async createRubric(@Req() req: any, @Body() reqBody: ImportStudentIdDto) {
+  async importStudentId(@Req() req: any, @Body() reqBody: ImportStudentIdDto) {
     return this.authService.import(reqBody);
   }
 }

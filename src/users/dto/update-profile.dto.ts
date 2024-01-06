@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class UpdateProfileDto {
   // @IsNotEmpty()
@@ -13,4 +13,8 @@ export class UpdateProfileDto {
 
   @MaxLength(16)
   studentId: string;
+
+
+  @IsString()
+  avatarUrl: string;
 }

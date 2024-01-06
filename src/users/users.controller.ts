@@ -34,7 +34,17 @@ export class UsersController {
       userId,
       reqBody.username,
       reqBody.studentId,
+      reqBody.avatarUrl,
     );
+  }
+
+  @Get('avatar')
+  @ApiOperation({ summary: 'Get profile avatar' })
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard('jwt'))
+  async getAvatar(@Req() req: any, @Body() reqBody: any) {
+    const userId = req.user.id;
+    return this.usersService.getAvatar(userId);
   }
 
   @Get('')
