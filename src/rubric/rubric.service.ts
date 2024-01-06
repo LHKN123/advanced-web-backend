@@ -18,7 +18,7 @@ export class RubricService {
     private readonly rubricRepository: Repository<RubricEntity>,
     @InjectRepository(ClassEntity)
     private readonly classesRepository: Repository<ClassEntity>,
-  ) { }
+  ) {}
 
   async create(rubricDto: CreateRubricDto): Promise<any> {
     const existedClass = await this.classesRepository.findOne({
@@ -58,7 +58,7 @@ export class RubricService {
     const allRubrics = await this.rubricRepository.find({
       where: { class_id: class_id },
     });
-    console.log('All Rubrics found', allRubrics, class_id);
+    // console.log('All Rubrics found', allRubrics, class_id);
     return allRubrics;
   }
 
@@ -101,10 +101,10 @@ export class RubricService {
       where: { _id: new ObjectId(rubric_id) },
     });
 
-    console.log("rub", rubric);
+    console.log('rub', rubric);
 
     if (rubric) {
-      return await this.rubricRepository.save({ ...rubric, "status": "graded" });
+      return await this.rubricRepository.save({ ...rubric, status: 'graded' });
     } else {
       throw new HttpException("Rubric doesn't exist", HttpStatus.CONFLICT);
     }

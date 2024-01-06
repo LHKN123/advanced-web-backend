@@ -127,12 +127,12 @@ export class SocketioGateway
             async () => {
               let temp = await this.reviewService.getReviewIdListForStudent(
                 studentId,
-                element._id,
+                element._id.toString(),
               );
 
               reviewIdList = [...reviewIdList, ...temp];
 
-              enrolledClassesId.push(element._id);
+              enrolledClassesId.push(element._id.toString());
             };
           });
         }
@@ -142,12 +142,12 @@ export class SocketioGateway
         teachingClasses.forEach((element) => {
           async () => {
             let temp = await this.reviewService.getReviewIdListForTeacher(
-              element._id,
+              element._id.toString(),
             );
 
             reviewIdList = [...reviewIdList, ...temp];
 
-            teachingClassesId.push(element._id);
+            teachingClassesId.push(element._id.toString());
           };
         });
       }
