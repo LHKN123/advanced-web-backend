@@ -123,17 +123,19 @@ export class SocketioGateway
 
       if (studentId && studentId != '') {
         if (enrolledClasses) {
-          enrolledClasses.forEach((element) => {
-            async () => {
-              let temp = await this.reviewService.getReviewIdListForStudent(
-                studentId,
-                element._id.toString(),
-              );
+          enrolledClasses.forEach(async (element) => {
+            console.log('id: ', element._id.toString());
+            console.log('id: ', element._id);
 
-              reviewIdList = [...reviewIdList, ...temp];
+            let temp = await this.reviewService.getReviewIdListForStudent(
+              studentId,
+              element._id.toString(),
+            );
 
-              enrolledClassesId.push(element._id.toString());
-            };
+            reviewIdList = [...reviewIdList, ...temp];
+
+            enrolledClassesId.push(element._id.toString());
+            console.log('enrolledClassesId', enrolledClassesId);
           });
         }
       }
