@@ -12,7 +12,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
   ) {
     super({
       jwtFromRequest: (req) => {
-        return req.handshake.headers.authorization.split(' ')[1];
+        return req.handshake.auth.token;
       },
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET'),
