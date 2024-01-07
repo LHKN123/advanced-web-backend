@@ -22,15 +22,13 @@ class tokenPayload {
   id: string;
 }
 
-class userData {
-  studentId: string;
-  enrolledClassesId: string[];
-  teachingClassesId: string[];
-  reviewIdList: string[];
-}
+// class userData {
+//   studentId: string;
+//   enrolledClassesId: string[];
+//   teachingClassesId: string[];
+//   reviewIdList: string[];
+// }
 
-// let configService: ConfigService;
-// const clientPort = parseInt(configService.get('CLIENT_PORT'));
 const clientPort = 3000;
 
 @WebSocketGateway({
@@ -59,7 +57,7 @@ export class SocketioGateway
   @WebSocketServer() io: Namespace;
 
   socketMap = new Map<string, string>();
-  dataMap = new Map<string, userData>();
+  // dataMap = new Map<string, userData>();
 
   afterInit(): void {
     this.logger.log('Websocket gateway initialized');
@@ -114,8 +112,8 @@ export class SocketioGateway
       let teachingClasses =
         await this.classesService.getAllTeachingClasses(userId);
 
-      console.log('my enrolledClasses: ', enrolledClasses);
-      console.log('my teachingClasses: ', teachingClasses);
+      // console.log('my enrolledClasses: ', enrolledClasses);
+      // console.log('my teachingClasses: ', teachingClasses);
 
       let enrolledClassesId = [];
       let teachingClassesId = [];
@@ -216,7 +214,7 @@ export class SocketioGateway
     @Req() req: any,
   ) {
     this.io.on('sendMessage', ({ message }) => {});
-    console.log(req.user);
+    console.log('sendMessage');
     client.emit('onMessage', message);
   }
 
@@ -229,9 +227,7 @@ export class SocketioGateway
     @Req() req: any,
   ) {
     this.io.on('notify', ({ body }) => {});
-    console.log('req user', req.user);
-    console.log('req', req);
-    // TODO:
+    console.log('notify');
     // only notify target class or review
     client.to(body.room).emit('returnNotification', body.message);
   }
