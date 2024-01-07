@@ -97,7 +97,7 @@ export class SocketioGateway
 
       let userId = payload.id;
 
-      //TODO: use usersService
+      //use usersService
       let user = await this.usersService.getUserById(userId);
       let studentId = '';
 
@@ -107,7 +107,7 @@ export class SocketioGateway
 
       //get classes and reviews
 
-      //TODO: use classesService
+      //use classesService
       let enrolledClasses =
         await this.classesService.getAllEnrolledClasses(userId);
       let teachingClasses =
@@ -120,68 +120,74 @@ export class SocketioGateway
       let teachingClassesId = [];
 
       let reviewIdList = [];
+      await (async () => {
+        if (studentId && studentId != '') {
+          if (enrolledClasses) {
+            enrolledClasses.forEach(async (element) => {
+              console.log('id: ', element._id.toString());
+              console.log('id: ', element._id);
 
-      if (studentId && studentId != '') {
-        if (enrolledClasses) {
-          enrolledClasses.forEach(async (element) => {
-            console.log('id: ', element._id.toString());
-            console.log('id: ', element._id);
+              enrolledClassesId.push(element._id.toString());
+              console.log('enrolledClassesId', enrolledClassesId);
 
-            let temp = await this.reviewService.getReviewIdListForStudent(
-              studentId,
-              element._id.toString(),
-            );
+              let temp = await this.reviewService.getReviewIdListForStudent(
+                studentId,
+                element._id.toString(),
+              );
 
-            reviewIdList = [...reviewIdList, ...temp];
+              reviewIdList = [...reviewIdList, ...temp];
+              console.log('temp', enrolledClassesId);
+              console.log('reviewIdList', reviewIdList);
+            });
+          }
+        }
 
-            enrolledClassesId.push(element._id.toString());
-            console.log('enrolledClassesId', enrolledClassesId);
+        if (teachingClasses) {
+          teachingClasses.forEach((element) => {
+            async () => {
+              teachingClassesId.push(element._id.toString());
+
+              let temp = await this.reviewService.getReviewIdListForTeacher(
+                element._id.toString(),
+              );
+
+              reviewIdList = [...reviewIdList, ...temp];
+            };
           });
         }
-      }
+      })();
 
-      if (teachingClasses) {
-        teachingClasses.forEach((element) => {
-          async () => {
-            let temp = await this.reviewService.getReviewIdListForTeacher(
-              element._id.toString(),
-            );
+      await (async () => {
+        let myUserData = {
+          studentId: studentId,
+          enrolledClassesId: enrolledClassesId,
+          teachingClassesId: teachingClassesId,
+          reviewIdList: reviewIdList,
+        };
+        // this.dataMap.set(userId, myUserData);
 
-            reviewIdList = [...reviewIdList, ...temp];
+        console.log('my user data: ', myUserData);
 
-            teachingClassesId.push(element._id.toString());
-          };
-        });
-      }
+        // join all user classes and review id
+        const roomNameList = [
+          ...enrolledClassesId,
+          ...teachingClassesId,
+          ...reviewIdList,
+        ];
 
-      let myUserData = {
-        studentId: studentId,
-        enrolledClassesId: enrolledClassesId,
-        teachingClassesId: teachingClassesId,
-        reviewIdList: reviewIdList,
-      };
-      this.dataMap.set(userId, myUserData);
+        await client.join(roomNameList);
 
-      console.log('my user data: ', myUserData);
+        console.log('my rooms: ', roomNameList);
+        // // log test
+        // for (const roomName of roomNameList) {
+        //   const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
 
-      // join all user classes and review id
-      const roomNameList = [
-        ...enrolledClassesId,
-        ...teachingClassesId,
-        ...reviewIdList,
-      ];
-      await client.join(roomNameList);
-
-      console.log('my rooms: ', roomNameList);
-      // // log test
-      // for (const roomName of roomNameList) {
-      //   const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
-
-      //   console.log(`userID: ${client.id} joined room with name: ${roomName}`);
-      //   console.log(
-      //     `Total clients connected to room '${roomName}': ${connectedClients}`,
-      //   );
-      // }
+        //   console.log(`userID: ${client.id} joined room with name: ${roomName}`);
+        //   console.log(
+        //     `Total clients connected to room '${roomName}': ${connectedClients}`,
+        //   );
+        // }
+      })();
     } catch (error) {
       console.error('Error handling connection:', error.message);
       client.disconnect(true);
