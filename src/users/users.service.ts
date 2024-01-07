@@ -6,12 +6,16 @@ import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 import { ObjectId } from 'mongodb';
 import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { AwsService } from 'src/aws/aws.service';
+
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    private awsService: AwsService
+
   ) { }
 
   async findByEmail(email: string): Promise<any | undefined> {
@@ -44,7 +48,7 @@ export class UsersService {
     await this.userRepository.remove(user);
   }
 
-  async updateProfile(id: string, username: string, student_id: string) {
+  async updateProfile(id: string, username: string, student_id: string, avatarUrl: string) {
     const objectId = new ObjectId(id);
     const updatedUser = await this.userRepository.findOne({
       where: { _id: objectId },
@@ -59,7 +63,15 @@ export class UsersService {
     //   { _id: objectId },
     //   { username: username },
     // );
-    return this.userRepository.save({ ...updatedUser, username, student_id });
+    return this.userRepository.save({ ...updatedUser, username, student_id, avatarUrl });
+  }
+
+  async getAvatar(userId: string) {
+    const objectId = new ObjectId(userId);
+    const user = await this.userRepository.findOne({
+      where: { _id: objectId },
+    });
+    return this.awsService.getAvatarUrl(user.avatarUrl);
   }
 
   async updateProfilePassword(reqUser: ResetPasswordDto) {

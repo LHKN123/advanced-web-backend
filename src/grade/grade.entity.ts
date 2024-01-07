@@ -16,6 +16,6 @@ export class GradeEntity {
   @Column()
   rubricId: string;
 
-  @Column('decimal', { scale: 3 })
+  @Column('decimal', { scale: 3, nullable: true, default: null })
   grade: number;
 }

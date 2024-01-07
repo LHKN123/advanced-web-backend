@@ -34,7 +34,7 @@ export class StudentService {
     const studentList = await this.studentRepository.find({
       where: { class_id: class_id },
     });
-    console.log('Student list found', studentList, class_id);
+    // console.log('Student list found', studentList, class_id);
     return studentList;
   }
 
@@ -42,7 +42,7 @@ export class StudentService {
     const studentList = await this.studentRepository.find({
       where: { class_id: class_id },
     });
-    console.log('Student list found', studentList, class_id);
+    // console.log('Student list found', studentList, class_id);
 
     for (const studentArray of studentList) {
       if (studentArray.students) {

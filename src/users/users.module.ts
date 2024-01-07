@@ -6,11 +6,14 @@ import { UserEntity } from './users.entity';
 import { UsersController } from './users.controller';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthModule } from 'src/auth/auth.module';
+import { AwsService } from 'src/aws/aws.service';
+import { S3 } from 'aws-sdk';
+import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), ConfigModule],
+  imports: [TypeOrmModule.forFeature([UserEntity]), ConfigModule, AwsModule],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, AwsService, S3],
   exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule { }
