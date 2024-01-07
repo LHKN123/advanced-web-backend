@@ -10,11 +10,14 @@ import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { UsersModule } from 'src/users/users.module';
 import { UserEntity } from 'src/users/users.entity';
+import { StudentEntity } from 'src/student/student.entity';
+import { StudentModule } from 'src/student/student.module';
 
 @Module({
   imports: [
     UsersModule,
-    TypeOrmModule.forFeature([ClassEntity, ClassListEntity, UserEntity]),
+    StudentModule,
+    TypeOrmModule.forFeature([ClassEntity, ClassListEntity, UserEntity, StudentEntity]),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -44,4 +47,4 @@ import { UserEntity } from 'src/users/users.entity';
   controllers: [ClassesController],
   exports: [ClassesService],
 })
-export class ClassesModule {}
+export class ClassesModule { }

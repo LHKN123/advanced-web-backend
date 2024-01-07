@@ -13,6 +13,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { UsersService } from 'src/users/users.service';
 import { UserEntity } from 'src/users/users.entity';
 import { Response } from 'express';
+import { StudentEntity } from 'src/student/student.entity';
 
 @Injectable()
 export class ClassesService {
@@ -22,6 +23,8 @@ export class ClassesService {
     private configService: ConfigService,
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(StudentEntity)
+    private studentRepository: Repository<StudentEntity>,
     @InjectRepository(ClassListEntity)
     private classListRepository: Repository<ClassListEntity>,
     private readonly mailerService: MailerService,
@@ -240,27 +243,51 @@ export class ClassesService {
       where: { email: memberDto.email },
     });
 
+    let fullName = ''
+
     if (existedUser) {
-      if (memberDto.role === 'Student' && !existedUser.student_id) {
-        return res.redirect(`http://localhost:3000/profile/empty-student-id`);
+      if (memberDto.role === 'Student') {
+        if (!existedUser.student_id) {
+          console.log('EMpty Student Id');
+          return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=empty-studentId`);
+        }
+
+        const existedStudentList = await this.studentRepository.findOne({
+          where: { class_id: classId },
+        });
+
+        if (!existedStudentList) {
+          console.log("No student list yet");
+          return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=empty-student-list`);
+        }
+        if (!existedStudentList.students.some(student => student.studentId === existedUser.student_id)) {
+          console.log("Student Id not found");
+          return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=studentId-not-found`);
+        }
+        existedStudentList.students.map(student => {
+          if (student.studentId === existedUser.student_id) {
+            fullName = student.fullname
+          }
+        })
       }
+
       const newMember = this.classListRepository.create({
         class_id: classId,
         user_id: existedUser._id.toString(),
         role: memberDto.role,
         student_id: existedUser.student_id,
         email: memberDto.email,
-        fullName: memberDto.role === "Student" ? "LTT" : existedUser.username,
+        fullName: memberDto.role === "Student" ? fullName : existedUser.username,
         avatar_url: existedUser.avatarUrl
       });
 
       await this.classListRepository.save(newMember);
       return res.redirect(
-        `http://localhost:3000/${memberDto.role == 'Student' ? 'enrolled' : 'teaching'
+        `${this.configService.get<string>('BASE_URL_FRONTEND')}/${memberDto.role == 'Student' ? 'enrolled' : 'teaching'
         }/${classId}/detail`,
       );
     } else {
-      return res.redirect(`http://localhost:3000/auth`);
+      return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/auth`);
     }
   }
 
@@ -372,13 +399,34 @@ export class ClassesService {
         throw new HttpException("The class is inactive", HttpStatus.CONFLICT);
       }
 
+      const existedStudentList = await this.studentRepository.findOne({
+        where: { class_id: curClass._id.toString() },
+      });
+
+      if (!existedStudentList) {
+        console.log("No student list yet");
+        throw new HttpException("The teacher hasn't setup student list!", HttpStatus.CONFLICT);
+      }
+      if (!existedStudentList.students.some(student => student.studentId === curUser.student_id)) {
+        console.log("Student Id not found");
+        throw new HttpException("Student ID doesn't match any students in the class", HttpStatus.CONFLICT);
+      }
+
+      let fullName = ""
+      existedStudentList.students.map(student => {
+        if (student.studentId === curUser.student_id) {
+          fullName = student.fullname
+        }
+      });
+
       const newMember = this.classListRepository.create({
         class_id: curClass._id.toString(),
         user_id: curUser._id.toString(),
         role: 'Student',
         student_id: curUser.student_id,
         email: curUser.email,
-        avatar_url: curUser.avatarUrl
+        avatar_url: curUser.avatarUrl,
+        fullName: fullName
       });
 
       const createdMember = await this.classListRepository.save(newMember);

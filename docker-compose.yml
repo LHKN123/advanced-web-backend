@@ -43,8 +43,8 @@ services:
     volumes:
       - ./minio/data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     # environment:
     #     MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
     #     MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
@@ -52,6 +52,21 @@ services:
     env_file: .env
     restart: always
 
-networks: 
+  #  aws:
+  #   image: aws/minio
+  #   container_name: minio-server
+  #   volumes:
+  #     - ./minio/data:/data
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   # environment:
+  #   #     MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+  #   #     MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+  #   command: server --console-address ":9001" /data
+  #   env_file: .env
+  #   restart: always
+
+networks:
   app-network:
     driver: bridge
