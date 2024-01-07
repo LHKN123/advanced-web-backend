@@ -12,6 +12,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
   ) {
     super({
       jwtFromRequest: (req) => {
+        //return req.handshake.headers.authorization.split(' ')[1]; //postman test
         return req.handshake.auth.token;
       },
       ignoreExpiration: false,
@@ -20,7 +21,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
   }
 
   async validate(payload: any) {
-    console.log(payload);
+    console.log('payload', payload);
     return await this.userService.getUserById(payload.id);
   }
 }
