@@ -70,9 +70,10 @@ export class SocketioGateway
     try {
       const sockets = this.io.sockets;
 
+      //let token = req.handshake.headers.authorization.split(' ')[1]; //postman test
       let token = client.handshake.auth.token;
 
-      console.log(token);
+      console.log('token', token);
 
       if (!token) {
         client.disconnect(true);
@@ -132,9 +133,10 @@ export class SocketioGateway
                 studentId,
                 element._id.toString(),
               );
-
-              reviewIdList = [...reviewIdList, ...temp];
-              console.log('reviewIdList in enrolled', temp);
+              if (temp.length > 0) {
+                reviewIdList = [...reviewIdList, ...temp];
+                console.log('reviewIdList in enrolled', temp);
+              }
             });
           }
         }
@@ -149,9 +151,10 @@ export class SocketioGateway
             let temp = await this.reviewService.getReviewIdListForTeacher(
               element._id.toString(),
             );
-
-            reviewIdList = [...reviewIdList, ...temp];
-            console.log('reviewIdList in teaching', temp);
+            if (temp.length > 0) {
+              reviewIdList = [...reviewIdList, ...temp];
+              console.log('reviewIdList in teaching', temp);
+            }
           });
         }
       })();
@@ -212,9 +215,9 @@ export class SocketioGateway
     @MessageBody('message') message: string,
     @Req() req: any,
   ) {
+    this.io.on('sendMessage', ({ message }) => {});
     console.log(req.user);
-    // this.io.on('sendMessage', (message) => {});
-    this.io.emit('onMessage', message);
+    client.emit('onMessage', message);
   }
 
   @SubscribeMessage('notify')
@@ -225,11 +228,11 @@ export class SocketioGateway
     @MessageBody('body') body: { message: string; room: string },
     @Req() req: any,
   ) {
+    this.io.on('notify', ({ body }) => {});
     console.log('req user', req.user);
     console.log('req', req);
-
     // TODO:
     // only notify target class or review
-    this.io.to(body.room).emit('returnNotification', body.message);
+    client.to(body.room).emit('returnNotification', body.message);
   }
 }
