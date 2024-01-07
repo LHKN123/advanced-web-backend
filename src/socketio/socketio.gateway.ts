@@ -120,6 +120,7 @@ export class SocketioGateway
       let teachingClassesId = [];
 
       let reviewIdList = [];
+
       await (async () => {
         if (studentId && studentId != '') {
           if (enrolledClasses) {
@@ -133,7 +134,7 @@ export class SocketioGateway
               );
 
               reviewIdList = [...reviewIdList, ...temp];
-              console.log('reviewIdList in enrolled', reviewIdList);
+              console.log('reviewIdList in enrolled', temp);
             });
           }
         }
@@ -141,18 +142,16 @@ export class SocketioGateway
 
       await (async () => {
         if (teachingClasses) {
-          teachingClasses.forEach((element) => {
-            async () => {
-              teachingClassesId.push(element._id.toString());
-              console.log('teachingClassesId', teachingClassesId);
+          teachingClasses.forEach(async (element) => {
+            teachingClassesId.push(element._id.toString());
+            console.log('teachingClassesId', teachingClassesId);
 
-              let temp = await this.reviewService.getReviewIdListForTeacher(
-                element._id.toString(),
-              );
+            let temp = await this.reviewService.getReviewIdListForTeacher(
+              element._id.toString(),
+            );
 
-              reviewIdList = [...reviewIdList, ...temp];
-              console.log('reviewIdList in teaching', reviewIdList);
-            };
+            reviewIdList = [...reviewIdList, ...temp];
+            console.log('reviewIdList in teaching', temp);
           });
         }
       })();
@@ -175,9 +174,8 @@ export class SocketioGateway
           ...reviewIdList,
         ];
 
-        await client.join(roomNameList);
-
         console.log('my rooms: ', roomNameList);
+        await client.join(roomNameList);
 
         // // log test
         // for (const roomName of roomNameList) {
