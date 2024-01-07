@@ -178,14 +178,18 @@ export class SocketioGateway
         await client.join(roomNameList);
 
         // // log test
-        // for (const roomName of roomNameList) {
-        //   const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
+        for (const roomName of roomNameList) {
+          const connectedClients =
+            this.io.adapter.rooms.get(roomName).size ?? 0;
 
-        //   console.log(`userID: ${client.id} joined room with name: ${roomName}`);
-        //   console.log(
-        //     `Total clients connected to room '${roomName}': ${connectedClients}`,
-        //   );
-        // }
+          console.log(
+            `userID: ${client.id} joined room with name: ${roomName}`,
+          );
+          console.log(
+            `Total clients connected to room '${roomName}': ${connectedClients}`,
+          );
+        }
+        //
       })();
     } catch (error) {
       console.error('Error handling connection:', error.message);
@@ -201,45 +205,31 @@ export class SocketioGateway
     this.logger.log(`Number of connected sockets: ${sockets.size} connected`);
   }
 
-  @SubscribeMessage('newMessage')
+  @SubscribeMessage('sendMessage')
   @UseGuards(WsJwtAuthGuard)
   sendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() message: any,
+    @MessageBody('message') message: string,
     @Req() req: any,
   ) {
     console.log(req.user);
-    this.io.on('sendMessage', (message) => {});
+    // this.io.on('sendMessage', (message) => {});
     this.io.emit('onMessage', message);
   }
 
-  // add more subscribe messages?
   @SubscribeMessage('notify')
   @UseGuards(WsJwtAuthGuard)
   notify(
     // @ConnectedSocket() client: SocketWithData,
     @ConnectedSocket() client: Socket,
-    @MessageBody() message: { value: string; room: string },
+    @MessageBody('body') body: { message: string; room: string },
     @Req() req: any,
   ) {
     console.log('req user', req.user);
     console.log('req', req);
 
-    // let token = client.handshake.auth.token;
-    // let userId = this.socketMap.get(token);
-
-    this.io.on('notify', (message) => {});
-
     // TODO:
     // only notify target class or review
-    const target = message.room;
-    this.io.to(target).emit('returnNotification', message.value);
-
-    //for testing only
-    // this.io.emit('returnNotification', message.value);
-
-    // alternative way: notify everyone
-    // const roomNameList = [client.class_id_list, ...client.review_id_list];
-    // this.io.to(roomNameList).emit('returnNotification', message);
+    this.io.to(body.room).emit('returnNotification', body.message);
   }
 }
