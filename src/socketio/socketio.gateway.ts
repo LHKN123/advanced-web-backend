@@ -124,9 +124,6 @@ export class SocketioGateway
         if (studentId && studentId != '') {
           if (enrolledClasses) {
             enrolledClasses.forEach(async (element) => {
-              console.log('id: ', element._id.toString());
-              console.log('id: ', element._id);
-
               enrolledClassesId.push(element._id.toString());
               console.log('enrolledClassesId', enrolledClassesId);
 
@@ -136,22 +133,25 @@ export class SocketioGateway
               );
 
               reviewIdList = [...reviewIdList, ...temp];
-              console.log('temp', enrolledClassesId);
-              console.log('reviewIdList', reviewIdList);
+              console.log('reviewIdList in enrolled', reviewIdList);
             });
           }
         }
+      })();
 
+      await (async () => {
         if (teachingClasses) {
           teachingClasses.forEach((element) => {
             async () => {
               teachingClassesId.push(element._id.toString());
+              console.log('teachingClassesId', teachingClassesId);
 
               let temp = await this.reviewService.getReviewIdListForTeacher(
                 element._id.toString(),
               );
 
               reviewIdList = [...reviewIdList, ...temp];
+              console.log('reviewIdList in teaching', reviewIdList);
             };
           });
         }
@@ -178,6 +178,7 @@ export class SocketioGateway
         await client.join(roomNameList);
 
         console.log('my rooms: ', roomNameList);
+
         // // log test
         // for (const roomName of roomNameList) {
         //   const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
