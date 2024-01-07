@@ -195,7 +195,7 @@ export class ClassesService {
     host_id: string,
   ): Promise<any> {
     const existingMember = await this.classListRepository.findOne({
-      where: { email: memberDto.email },
+      where: { email: memberDto.email, class_id: classId },
     });
 
     const curClass = await this.classRepository.findOne({
