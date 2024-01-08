@@ -338,7 +338,7 @@ export class AuthService {
     }
 
     let userExists = await this.userRepository.findOne({
-      where: { email: user.email },
+      where: { email: user.email, role: 'user' },
     });
 
     if (!userExists) {
