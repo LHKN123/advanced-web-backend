@@ -14,20 +14,20 @@ async function bootstrap() {
   const clientPort = parseInt(configService.get('CLIENT_PORT'));
   const appPort = parseInt(configService.get('APP_PORT'));
 
-  const corsOptions: CorsOptions = {
-    // origin: true,
-    origin: [
-      `http://localhost:${clientPort}`,
-      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
-      configService.get<string>('BASE_URL_FRONTEND'),
-      "https://advanced-web-frontend-zeta.vercel.app/"
+  // const corsOptions: CorsOptions = {
+  //   // origin: true,
+  //   origin: [
+  //     `http://localhost:${clientPort}`,
+  //     new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+  //     configService.get<string>('BASE_URL_FRONTEND'),
+  //     "https://advanced-web-frontend-zeta.vercel.app/"
 
-    ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  };
+  //   ],
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   credentials: true,
+  // };
 
-  app.enableCors(corsOptions);
+  // app.enableCors(corsOptions);
   // app.use(function (req, res, next) {
   //   res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // update to match the domain you will make the request from
   //   res.header(
@@ -80,7 +80,7 @@ async function bootstrap() {
 
   const ioAdapter = new IoAdapter(app);
   app.useWebSocketAdapter(ioAdapter);
-
+  app.enableCors();
   await app.listen(appPort);
 }
 bootstrap();
