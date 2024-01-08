@@ -5,6 +5,7 @@ import * as AWS from 'aws-sdk';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
+    imports: [ConfigModule],
     controllers: [AwsController],
     providers: [
         AwsService,

@@ -19,7 +19,7 @@ async function bootstrap() {
     origin: [
       `http://localhost:${clientPort}`,
       new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
-      'https://advanced-web-frontend-zeta.vercel.app/',
+      configService.get<string>('BASE_URL_FRONTEND'),
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
