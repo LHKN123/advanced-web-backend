@@ -20,6 +20,8 @@ async function bootstrap() {
       `http://localhost:${clientPort}`,
       new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
       configService.get<string>('BASE_URL_FRONTEND'),
+      "https://advanced-web-frontend-lbh2r91gm-light-hub.vercel.app/"
+
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

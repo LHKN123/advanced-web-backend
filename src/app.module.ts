@@ -4,7 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { UserEntity } from './users/users.entity';
-import { MinioClientModule } from './minio-client/minio-client.module';
 import { UploadModule } from './upload/upload.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -40,7 +39,6 @@ import { StudentModule } from './student/student.module';
     }),
     AuthModule,
     UsersModule,
-    MinioClientModule,
     UploadModule,
     DownloadModule,
     SocketioModule,
