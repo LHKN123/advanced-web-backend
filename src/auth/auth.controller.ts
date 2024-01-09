@@ -143,10 +143,7 @@ export class AuthController {
     res: Response,
     auth: { access_token: string; refresh_token: string },
   ) {
-    // const successRedirectUrl = (auth) =>
-    //   `${this.configService.get<string>(
-    //     'BASE_URL_FRONTEND',
-    //   )}/auth/oauth-success-redirect?code=${auth.access_token}`;
+
     const successRedirectUrl = (auth) =>
       `${this.configService.get<string>(
         'BASE_URL_FRONTEND',
