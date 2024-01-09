@@ -29,7 +29,7 @@ import { EnrollClassDto } from './dto/enroll-class.dto';
 @ApiTags('classes')
 @Controller('classes')
 export class ClassesController {
-  constructor(private readonly classService: ClassesService) {}
+  constructor(private readonly classService: ClassesService) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create new class' })
@@ -154,7 +154,6 @@ export class ClassesController {
     @Res() res: Response,
     @Param('classId') classId: string,
   ) {
-    console.log('Accept invitation', params);
     this.classService.acceptInvitation(classId, params, res);
   }
 
@@ -199,9 +198,7 @@ export class ClassesController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async getAllEnrolledClasses(@Req() req: any) {
-    console.log('REquesst', req);
     const user_id = req.user.id;
-    console.log('Getting', user_id);
     return this.classService.getAllEnrolledClasses(user_id);
   }
 

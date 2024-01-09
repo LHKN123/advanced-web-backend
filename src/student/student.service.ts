@@ -9,7 +9,7 @@ export class StudentService {
   constructor(
     @InjectRepository(StudentEntity)
     private readonly studentRepository: Repository<StudentEntity>,
-  ) {}
+  ) { }
 
   async create(classId: string, studentDto: ImportStudentDto): Promise<any> {
     const existedRow = await this.studentRepository.findOne({
@@ -20,7 +20,6 @@ export class StudentService {
         class_id: classId,
         students: studentDto.students,
       });
-      console.log('new row  ', newRow);
 
       return await this.studentRepository.save(newRow);
     } else {
@@ -34,7 +33,6 @@ export class StudentService {
     const studentList = await this.studentRepository.find({
       where: { class_id: class_id },
     });
-    // console.log('Student list found', studentList, class_id);
     return studentList;
   }
 
@@ -42,13 +40,11 @@ export class StudentService {
     const studentList = await this.studentRepository.find({
       where: { class_id: class_id },
     });
-    // console.log('Student list found', studentList, class_id);
 
     for (const studentArray of studentList) {
       if (studentArray.students) {
         for (const student of studentArray.students) {
           if (student.studentId === student_id) {
-            console.log('Student fullname: ' + student.fullname);
             return student.fullname;
           }
         }

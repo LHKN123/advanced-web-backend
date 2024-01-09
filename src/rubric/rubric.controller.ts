@@ -43,7 +43,6 @@ export class RubricController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async deleteRubric(@Req() req: any, @Param('rubricId') rubric_id: string) {
-    console.log('rubric', rubric_id);
     return await this.rubricService.delete(rubric_id);
   }
 
@@ -53,7 +52,6 @@ export class RubricController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(200)
   async update(@Req() req: any, @Body() reqBody: UpdateAllRubricDto) {
-    console.log('Update rubric', reqBody);
 
     this.rubricService.update(reqBody);
   }

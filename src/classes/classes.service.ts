@@ -223,7 +223,9 @@ export class ClassesService {
         context: {
           receivedEmail: memberDto.email,
           className: curClass.name,
-          inviteLink: `http://localhost:4000/classes/${classId}/members/accept-invitation?email=${memberDto.email}&role=${memberDto.role}`,
+          inviteLink: `${this.configService.get<string>(
+            'BASE_URL_BACKEND',
+          )}/classes/${classId}/members/accept-invitation?email=${memberDto.email}&role=${memberDto.role}`,
         },
       });
 
@@ -248,7 +250,6 @@ export class ClassesService {
     if (existedUser) {
       if (memberDto.role === 'Student') {
         if (!existedUser.student_id) {
-          console.log('EMpty Student Id');
           return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=empty-studentId`);
         }
 
@@ -257,11 +258,9 @@ export class ClassesService {
         });
 
         if (!existedStudentList) {
-          console.log("No student list yet");
           return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=empty-student-list`);
         }
         if (!existedStudentList.students.some(student => student.studentId === existedUser.student_id)) {
-          console.log("Student Id not found");
           return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=studentId-not-found`);
         }
         existedStudentList.students.map(student => {
@@ -404,11 +403,9 @@ export class ClassesService {
       });
 
       if (!existedStudentList) {
-        console.log("No student list yet");
         throw new HttpException("The teacher hasn't setup student list!", HttpStatus.CONFLICT);
       }
       if (!existedStudentList.students.some(student => student.studentId === curUser.student_id)) {
-        console.log("Student Id not found");
         throw new HttpException("Student ID doesn't match any students in the class", HttpStatus.CONFLICT);
       }
 

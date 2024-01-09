@@ -21,7 +21,6 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
   }
 
   async validate(payload: any) {
-    console.log('payload', payload);
     return await this.userService.getUserById(payload.id);
   }
 }

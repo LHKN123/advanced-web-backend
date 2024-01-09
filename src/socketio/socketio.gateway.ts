@@ -22,12 +22,7 @@ class tokenPayload {
   id: string;
 }
 
-// class userData {
-//   studentId: string;
-//   enrolledClassesId: string[];
-//   teachingClassesId: string[];
-//   reviewIdList: string[];
-// }
+
 
 const clientPort = 3000;
 
@@ -42,8 +37,7 @@ const clientPort = 3000;
   },
 })
 export class SocketioGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(SocketioGateway.name);
   constructor(
     // for user / class / review services
@@ -52,7 +46,7 @@ export class SocketioGateway
     private readonly reviewService: ReviewService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @WebSocketServer() io: Namespace;
 
@@ -71,7 +65,6 @@ export class SocketioGateway
       //let token = req.handshake.headers.authorization.split(' ')[1]; //postman test
       let token = client.handshake.auth.token;
 
-      console.log('token', token);
 
       if (!token) {
         client.disconnect(true);
@@ -91,9 +84,6 @@ export class SocketioGateway
 
       this.socketMap.set(token, payload.id);
 
-      console.log(`Client with id ${client.id} connected`);
-      console.log(`Number of connected sockets: ${sockets.size} connected`);
-
       let userId = payload.id;
 
       //use usersService
@@ -112,8 +102,6 @@ export class SocketioGateway
       let teachingClasses =
         await this.classesService.getAllTeachingClasses(userId);
 
-      // console.log('my enrolledClasses: ', enrolledClasses);
-      // console.log('my teachingClasses: ', teachingClasses);
 
       let enrolledClassesId = [];
       let teachingClassesId = [];
@@ -125,7 +113,6 @@ export class SocketioGateway
           if (enrolledClasses) {
             enrolledClasses.forEach(async (element) => {
               enrolledClassesId.push(element._id.toString());
-              console.log('enrolledClassesId', enrolledClassesId);
 
               let temp = await this.reviewService.getReviewIdListForStudent(
                 studentId,
@@ -133,7 +120,6 @@ export class SocketioGateway
               );
               if (temp.length > 0) {
                 reviewIdList = [...reviewIdList, ...temp];
-                console.log('reviewIdList in enrolled', temp);
               }
             });
           }
@@ -144,14 +130,12 @@ export class SocketioGateway
         if (teachingClasses) {
           teachingClasses.forEach(async (element) => {
             teachingClassesId.push(element._id.toString());
-            console.log('teachingClassesId', teachingClassesId);
 
             let temp = await this.reviewService.getReviewIdListForTeacher(
               element._id.toString(),
             );
             if (temp.length > 0) {
               reviewIdList = [...reviewIdList, ...temp];
-              console.log('reviewIdList in teaching', temp);
             }
           });
         }
@@ -166,7 +150,6 @@ export class SocketioGateway
         };
         // this.dataMap.set(userId, myUserData);
 
-        console.log('my user data: ', myUserData);
 
         // join all user classes and review id
         const roomNameList = [
@@ -175,7 +158,6 @@ export class SocketioGateway
           ...reviewIdList,
         ];
 
-        console.log('my rooms: ', roomNameList);
         await client.join(roomNameList);
 
         // // log test
@@ -183,11 +165,9 @@ export class SocketioGateway
           const connectedClients =
             this.io.adapter.rooms.get(roomName).size ?? 0;
 
-          console.log(
-            `userID: ${client.id} joined room with name: ${roomName}`,
+          `userID: ${client.id} joined room with name: ${roomName}`,
           );
-          console.log(
-            `Total clients connected to room '${roomName}': ${connectedClients}`,
+          `Total clients connected to room '${roomName}': ${connectedClients}`,
           );
         }
         //
@@ -213,8 +193,7 @@ export class SocketioGateway
     @MessageBody('message') message: string,
     @Req() req: any,
   ) {
-    this.io.on('sendMessage', ({ message }) => {});
-    console.log('sendMessage');
+    this.io.on('sendMessage', ({ message }) => { });
     client.emit('onMessage', message);
   }
 
@@ -226,8 +205,7 @@ export class SocketioGateway
     @MessageBody('body') body: { message: string; room: string },
     @Req() req: any,
   ) {
-    this.io.on('notify', ({ body }) => {});
-    console.log('notify');
+    this.io.on('notify', ({ body }) => { });
     // only notify target class or review
     client.to(body.room).emit('returnNotification', body.message);
   }

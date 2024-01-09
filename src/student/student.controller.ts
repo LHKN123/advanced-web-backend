@@ -15,7 +15,7 @@ import { ImportStudentDto } from './dto/import_student.dto';
 @ApiTags('student')
 @Controller('student')
 export class StudentController {
-  constructor(private readonly studentService: StudentService) {}
+  constructor(private readonly studentService: StudentService) { }
 
   @Post(':classId/import')
   @ApiOperation({ summary: 'Import student list of the class ' })
@@ -25,7 +25,7 @@ export class StudentController {
     @Body() reqBody: ImportStudentDto,
     @Param('classId') classId: string,
   ) {
-    console.log('Studnet list', reqBody);
+
     return this.studentService.create(classId, reqBody);
   }
 

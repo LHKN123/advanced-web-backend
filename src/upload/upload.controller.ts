@@ -13,20 +13,11 @@ export class UploadController {
         private readonly awsService: AwsService,
     ) { }
 
-    // @Post('avatar')
-    // @UseInterceptors(FileInterceptor('image'))
-    // async uploadAvatar(
-    //     @UploadedFile() image: BufferedFile
-    // ) {
-    //     return await this.uploadService.uploadAvatar(image);
-    // }
-
     @Post('avatar')
     @UseInterceptors(FileInterceptor('file'))
     @ApiBearerAuth('access-token')
     @UseGuards(AuthGuard('jwt'))
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
-        console.log('Uploading file:', file);
         const location = await this.awsService.uploadFile(file);
         return { location };
     }

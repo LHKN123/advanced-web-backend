@@ -18,7 +18,7 @@ export class RubricService {
     private readonly rubricRepository: Repository<RubricEntity>,
     @InjectRepository(ClassEntity)
     private readonly classesRepository: Repository<ClassEntity>,
-  ) {}
+  ) { }
 
   async create(rubricDto: CreateRubricDto): Promise<any> {
     const existedClass = await this.classesRepository.findOne({
@@ -58,7 +58,6 @@ export class RubricService {
     const allRubrics = await this.rubricRepository.find({
       where: { class_id: class_id },
     });
-    // console.log('All Rubrics found', allRubrics, class_id);
     return allRubrics;
   }
 
@@ -78,12 +77,10 @@ export class RubricService {
 
   async update(rubricDto: UpdateAllRubricDto) {
     rubricDto.rubrics.map(async (item) => {
-      console.log('ITEM: ', item);
       const objectId = new ObjectId(item._id);
       const rubric = await this.rubricRepository.findOne({
         where: { _id: objectId },
       });
-      console.log('RUBRIC: ', item._id);
       if (rubric) {
         rubric.gradeName = item.gradeName;
         rubric.gradeScale = item.gradeScale;
@@ -101,7 +98,6 @@ export class RubricService {
       where: { _id: new ObjectId(rubric_id) },
     });
 
-    console.log('rub', rubric);
 
     if (rubric) {
       return await this.rubricRepository.save({ ...rubric, status: 'graded' });
