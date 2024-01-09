@@ -46,3 +46,4 @@ config
 am-*
 *xl.meta
 minio/data/.minio.sys/tmp/*
+format.json
