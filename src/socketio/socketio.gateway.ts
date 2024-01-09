@@ -164,11 +164,6 @@ export class SocketioGateway
         for (const roomName of roomNameList) {
           const connectedClients =
             this.io.adapter.rooms.get(roomName).size ?? 0;
-
-          `userID: ${client.id} joined room with name: ${roomName}`,
-          );
-          `Total clients connected to room '${roomName}': ${connectedClients}`,
-          );
         }
         //
       })();
