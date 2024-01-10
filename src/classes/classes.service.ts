@@ -388,7 +388,7 @@ export class ClassesService {
       }
 
       const existingClass = await this.classListRepository.findOne({
-        where: { class_id: curClass._id.toString(), user_id: curUser._id.toString() },
+        where: { class_id: curClass._id.toString(), email: curUser.email, student_id: curUser.student_id },
       });
 
       if (existingClass) {

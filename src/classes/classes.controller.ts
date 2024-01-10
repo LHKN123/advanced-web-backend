@@ -207,6 +207,7 @@ export class ClassesController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'))
   async enrolledClass(@Req() req: any, @Query() code: EnrollClassDto) {
+    console.log('Enrolled class called', code);
     const user_id = req.user.id;
     return this.classService.enrolledClass(code.code, user_id);
   }
