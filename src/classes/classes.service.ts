@@ -248,6 +248,27 @@ export class ClassesService {
     let fullName = ''
 
     if (existedUser) {
+      const curClass = await this.classRepository.findOne({
+        where: { _id: new ObjectId(classId) },
+      });
+
+      if (!curClass) {
+        throw new HttpException(
+          'The class does not exist !',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const existingClass = await this.classListRepository.findOne({
+        where: { class_id: classId, email: existedUser.email },
+      });
+
+      if (existingClass) {
+        throw new HttpException("You've already enrolled the class", HttpStatus.CONFLICT);
+      }
+      else if (curClass.status === "inactive") {
+        throw new HttpException("The class is inactive", HttpStatus.CONFLICT);
+      }
       if (memberDto.role === 'Student') {
         if (!existedUser.student_id) {
           return res.redirect(`${this.configService.get<string>('BASE_URL_FRONTEND')}/profile/error_msg?msg=empty-studentId`);
@@ -388,7 +409,7 @@ export class ClassesService {
       }
 
       const existingClass = await this.classListRepository.findOne({
-        where: { class_id: curClass._id.toString(), email: curUser.email, student_id: curUser.student_id },
+        where: { class_id: curClass._id.toString(), email: curUser.email },
       });
 
       if (existingClass) {
