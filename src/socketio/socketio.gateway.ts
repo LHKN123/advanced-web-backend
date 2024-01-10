@@ -185,16 +185,16 @@ export class SocketioGateway
   }
 
   //test
-  // @SubscribeMessage('sendMessage')
-  // @UseGuards(WsJwtAuthGuard)
-  // sendMessage(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody('message') message: string,
-  //   @Req() req: any,
-  // ) {
-  //   this.io.on('sendMessage', ({ message }) => {});
-  //   client.emit('onMessage', message);
-  // }
+  @SubscribeMessage('sendMessage')
+  @UseGuards(WsJwtAuthGuard)
+  sendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody('message') message: string,
+    @Req() req: any,
+  ) {
+    this.io.on('sendMessage', ({ message }) => {});
+    client.emit('onMessage', message);
+  }
 
   @SubscribeMessage('notify')
   @UseGuards(WsJwtAuthGuard)
