@@ -47,8 +47,8 @@ export class ClassesService {
       const savedClass = await this.classRepository.save(newClass);
 
       savedClass.invite_url = `${this.configService.get<string>(
-        'BASE_URL_BACKEND',
-      )}/classes/enrolled?code=${savedClass.class_code}`;
+        'BASE_URL_FRONTEND',
+      )}enrolled/${savedClass._id}?code=${savedClass.class_code}`;
 
       const addedClass = await this.classRepository.save(savedClass);
       return {
