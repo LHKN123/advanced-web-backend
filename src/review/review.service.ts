@@ -92,7 +92,7 @@ export class ReviewService {
     let reviewIdList = [];
 
     reviewList.forEach((element) => {
-      reviewIdList.push(element._id);
+      reviewIdList.push(element._id.toString());
     });
 
     return reviewIdList;
@@ -112,7 +112,7 @@ export class ReviewService {
     let reviewIdList = [];
 
     reviewList.forEach((element) => {
-      reviewIdList.push(element._id);
+      reviewIdList.push(element._id.toString());
     });
 
     return reviewIdList;

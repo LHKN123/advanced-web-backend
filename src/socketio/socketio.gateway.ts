@@ -22,8 +22,6 @@ class tokenPayload {
   id: string;
 }
 
-
-
 const clientPort = 3000;
 
 @WebSocketGateway({
@@ -37,7 +35,8 @@ const clientPort = 3000;
   },
 })
 export class SocketioGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(SocketioGateway.name);
   constructor(
     // for user / class / review services
@@ -46,7 +45,7 @@ export class SocketioGateway
     private readonly reviewService: ReviewService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   @WebSocketServer() io: Namespace;
 
@@ -64,7 +63,6 @@ export class SocketioGateway
 
       //let token = req.handshake.headers.authorization.split(' ')[1]; //postman test
       let token = client.handshake.auth.token;
-
 
       if (!token) {
         client.disconnect(true);
@@ -102,71 +100,76 @@ export class SocketioGateway
       let teachingClasses =
         await this.classesService.getAllTeachingClasses(userId);
 
-
       let enrolledClassesId = [];
       let teachingClassesId = [];
 
       let reviewIdList = [];
 
-      await (async () => {
-        if (studentId && studentId != '') {
-          if (enrolledClasses) {
-            enrolledClasses.forEach(async (element) => {
-              enrolledClassesId.push(element._id.toString());
+      if (studentId && studentId != '') {
+        if (enrolledClasses) {
+          enrolledClasses.forEach((element) => {
+            enrolledClassesId.push(element._id.toString());
 
-              let temp = await this.reviewService.getReviewIdListForStudent(
-                studentId,
-                element._id.toString(),
-              );
-              if (temp.length > 0) {
-                reviewIdList = [...reviewIdList, ...temp];
-              }
-            });
-          }
-        }
-      })();
-
-      await (async () => {
-        if (teachingClasses) {
-          teachingClasses.forEach(async (element) => {
-            teachingClassesId.push(element._id.toString());
-
-            let temp = await this.reviewService.getReviewIdListForTeacher(
-              element._id.toString(),
-            );
-            if (temp.length > 0) {
-              reviewIdList = [...reviewIdList, ...temp];
-            }
+            this.reviewService
+              .getReviewIdListForStudent(studentId, element._id.toString())
+              .then((response) => {
+                console.log('student', response);
+                if (response.length > 0) {
+                  response.forEach((id) => {
+                    reviewIdList.push(id);
+                  });
+                }
+              });
           });
         }
-      })();
+      }
 
-      await (async () => {
-        let myUserData = {
-          studentId: studentId,
-          enrolledClassesId: enrolledClassesId,
-          teachingClassesId: teachingClassesId,
-          reviewIdList: reviewIdList,
-        };
-        // this.dataMap.set(userId, myUserData);
+      if (teachingClasses) {
+        teachingClasses.forEach((element) => {
+          teachingClassesId.push(element._id.toString());
 
+          this.reviewService
+            .getReviewIdListForTeacher(element._id.toString())
+            .then((response) => {
+              // console.log('teacher', response);
+              if (response.length > 0) {
+                response.forEach((id) => {
+                  reviewIdList.push(id);
+                });
+              }
+            });
+        });
+      }
 
-        // join all user classes and review id
-        const roomNameList = [
-          ...enrolledClassesId,
-          ...teachingClassesId,
-          ...reviewIdList,
-        ];
+      await new Promise((r) => setTimeout(r, 4000));
 
-        await client.join(roomNameList);
+      let myUserData = {
+        studentId: studentId,
+        enrolledClassesId: enrolledClassesId,
+        teachingClassesId: teachingClassesId,
+        reviewIdList: reviewIdList,
+      };
+      // this.dataMap.set(userId, myUserData);
+      console.log(myUserData);
 
-        // // log test
-        for (const roomName of roomNameList) {
-          const connectedClients =
-            this.io.adapter.rooms.get(roomName).size ?? 0;
-        }
-        //
-      })();
+      // join all user classes and review id
+      const roomNameList = [
+        ...enrolledClassesId,
+        ...teachingClassesId,
+        ...reviewIdList,
+      ];
+
+      await client.join(roomNameList);
+
+      // // log test
+      for (const roomName of roomNameList) {
+        const connectedClients = this.io.adapter.rooms.get(roomName).size ?? 0;
+        console.log(`userID: ${client.id} joined room with name: ${roomName}`);
+        console.log(
+          `Total clients connected to room '${roomName}': ${connectedClients}`,
+        );
+      }
+      //
     } catch (error) {
       console.error('Error handling connection:', error.message);
       client.disconnect(true);
@@ -181,16 +184,17 @@ export class SocketioGateway
     this.logger.log(`Number of connected sockets: ${sockets.size} connected`);
   }
 
-  @SubscribeMessage('sendMessage')
-  @UseGuards(WsJwtAuthGuard)
-  sendMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody('message') message: string,
-    @Req() req: any,
-  ) {
-    this.io.on('sendMessage', ({ message }) => { });
-    client.emit('onMessage', message);
-  }
+  //test
+  // @SubscribeMessage('sendMessage')
+  // @UseGuards(WsJwtAuthGuard)
+  // sendMessage(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody('message') message: string,
+  //   @Req() req: any,
+  // ) {
+  //   this.io.on('sendMessage', ({ message }) => {});
+  //   client.emit('onMessage', message);
+  // }
 
   @SubscribeMessage('notify')
   @UseGuards(WsJwtAuthGuard)
@@ -200,8 +204,18 @@ export class SocketioGateway
     @MessageBody('body') body: { message: string; room: string },
     @Req() req: any,
   ) {
-    this.io.on('notify', ({ body }) => { });
+    let message: string = 'A student has replied'; // "student_reply"
+    if (body.message === 'grade_finalize') {
+      message = 'A grade composition is finalized';
+    } else if (body.message === 'review_finalize') {
+      message = 'A grade review is finalized';
+    } else if (body.message === 'review_create') {
+      message = 'A grade review is created';
+    } else if (body.message === 'teacher_reply') {
+      message = 'A teacher has replied';
+    }
+
     // only notify target class or review
-    client.to(body.room).emit('returnNotification', body.message);
+    this.io.to(body.room).emit('returnNotification', message);
   }
 }
